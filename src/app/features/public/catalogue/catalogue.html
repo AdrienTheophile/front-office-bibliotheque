@@ -1,0 +1,132 @@
+<div class="container-fluid py-5">
+  <div class="row">
+    <!-- Sidebar Filtrages -->
+    <div class="col-lg-3 mb-4">
+      <div class="card shadow-sm border-0 filters-card sticky-top">
+        <div class="card-header bg-primary text-white border-0">
+          <h5 class="mb-0">🔍 Filtres</h5>
+        </div>
+        <div class="card-body">
+          <!-- Search -->
+          <div class="mb-4">
+            <label class="form-label fw-bold">Recherche</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Titre ou auteur..."
+              [(ngModel)]="searchTerm"
+            />
+          </div>
+
+          <!-- Category Filter -->
+          <div class="mb-4">
+            <label class="form-label fw-bold">Catégorie</label>
+            <select class="form-select" [(ngModel)]="selectedCategory">
+              <option value="">Toutes les catégories</option>
+              @for (cat of categories; track cat) {
+                <option [value]="cat">{{ cat }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Language Filter -->
+          <div class="mb-4">
+            <label class="form-label fw-bold">Langue</label>
+            <select class="form-select" [(ngModel)]="selectedLanguage">
+              <option value="">Toutes les langues</option>
+              @for (lang of languages; track lang) {
+                <option [value]="lang">{{ lang }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Reset Button -->
+          <button class="btn btn-outline-primary w-100" (click)="reinitialiserFiltres()">
+            ↺ Réinitialiser filtres
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-lg-9">
+      <!-- Header -->
+      <div class="mb-4">
+        <h2 class="display-6 fw-bold mb-2">Catalogue des Livres</h2>
+        <p class="text-muted">
+          {{ livresFiltres().length }} livre(s) trouvé(s)
+        </p>
+      </div>
+
+      <!-- Books Grid -->
+      @if (livresFiltres().length > 0) {
+        <div class="row g-4">
+          @for (livre of livresFiltres(); track livre.id) {
+            <div class="col-md-6 col-lg-4">
+              <div class="card h-100 book-card shadow-sm border-0">
+                <!-- Book Cover -->
+                <div class="book-cover bg-light d-flex align-items-center justify-content-center">
+                  <div class="text-center">
+                    <div class="display-1 mb-2">📖</div>
+                    <small class="text-muted">{{ livre.categorie }}</small>
+                  </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body">
+                  <h6 class="card-title fw-bold text-truncate">{{ livre.titre }}</h6>
+                  <p class="card-text small text-muted">
+                    par <span class="fw-semibold">{{ livre.auteur.nom }}</span>
+                  </p>
+
+                  <!-- Meta Info -->
+                  <div class="meta-info small mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                      <span>📅</span>
+                      <span>{{ livre.annee }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                      <span>🌍</span>
+                      <span>{{ livre.langue }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span>📚</span>
+                      <span>{{ livre.nombreExemplaires }} ex.</span>
+                    </div>
+                  </div>
+
+                  <!-- Status Badge -->
+                  <div class="mb-3">
+                    @switch (livre.statut) {
+                      @case ('disponible') {
+                        <span class="badge bg-success">Disponible</span>
+                      }
+                      @case ('emprunte') {
+                        <span class="badge bg-danger">Emprunté</span>
+                      }
+                      @case ('reserve') {
+                        <span class="badge bg-warning text-dark">Réservé</span>
+                      }
+                    }
+                  </div>
+                </div>
+
+                <!-- Card Footer -->
+                <div class="card-footer bg-white border-top">
+                  <a [routerLink]="['/livres', livre.id]" class="btn btn-sm btn-primary w-100">
+                    Voir détails
+                  </a>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="alert alert-info text-center py-5">
+          <h5>😔 Aucun livre trouvé</h5>
+          <p class="mb-0">Essayez de modifier vos filtres</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

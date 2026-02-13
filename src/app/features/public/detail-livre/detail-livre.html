@@ -1,0 +1,83 @@
+<div class="container py-5">
+  @if (livre) {
+    <div class="row">
+      <!-- Book Cover -->
+      <div class="col-md-4 mb-4">
+        <div class="book-cover-container">
+          <div class="book-cover-icon">📖</div>
+          <p class="text-muted text-center mt-2">{{ livre.categorie }}</p>
+        </div>
+      </div>
+
+      <!-- Book Details -->
+      <div class="col-md-8">
+        <h1 class="display-5 fw-bold mb-3">{{ livre.titre }}</h1>
+        
+        <div class="author-info mb-4 p-3 bg-light rounded">
+          <p class="mb-0"><strong>Auteur:</strong> {{ livre.auteur.nom }}</p>
+          <p class="text-muted small mb-0">{{ livre.auteur.biographie }}</p>
+        </div>
+
+        <div class="book-meta mb-4">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <strong>📅 Année:</strong> {{ livre.annee }}
+            </div>
+            <div class="col-sm-6">
+              <strong>🌍 Langue:</strong> {{ livre.langue }}
+            </div>
+            <div class="col-sm-6">
+              <strong>📚 Catégorie:</strong> {{ livre.categorie }}
+            </div>
+            <div class="col-sm-6">
+              <strong>📦 Exemplaires:</strong> {{ livre.nombreExemplaires }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="mb-4">
+          @switch (livre.statut) {
+            @case ('disponible') {
+              <span class="badge bg-success fs-6">✓ Disponible pour emprunt</span>
+            }
+            @case ('emprunte') {
+              <span class="badge bg-danger fs-6">✗ Actuellement emprunté</span>
+            }
+            @case ('reserve') {
+              <span class="badge bg-warning text-dark fs-6">⏱ En réservation</span>
+            }
+          }
+        </div>
+
+        <!-- Description -->
+        @if (livre.description) {
+          <div class="mb-4">
+            <h5>Description</h5>
+            <p>{{ livre.description }}</p>
+          </div>
+        }
+
+        <!-- Actions -->
+        <div class="action-buttons mb-4">
+          <button class="btn btn-primary btn-lg me-2" [disabled]="livre.statut !== 'disponible'">
+            📥 Emprunter ce livre
+          </button>
+          <button class="btn btn-outline-primary btn-lg">
+            ✋ Réserver
+          </button>
+        </div>
+
+        <!-- Back Button -->
+        <a [routerLink]="['/catalogue']" class="btn btn-outline-secondary">
+          ← Retour au catalogue
+        </a>
+      </div>
+    </div>
+  } @else {
+    <div class="alert alert-info text-center py-5">
+      <p>Livre non trouvé</p>
+      <a [routerLink]="['/catalogue']" class="btn btn-primary">Retour au catalogue</a>
+    </div>
+  }
+</div>

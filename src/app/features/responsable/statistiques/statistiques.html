@@ -1,0 +1,111 @@
+<div class="container py-5">
+  <h1 class="display-5 fw-bold mb-5">Tableau de Bord Manager</h1>
+
+  @if (stats()) {
+    <!-- Main Stats Grid -->
+    <div class="row g-4 mb-5">
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body text-center">
+            <div class="display-4 text-primary">📚</div>
+            <h6 class="text-muted mt-2">Total Livres</h6>
+            <h2 class="fw-bold">{{ stats().totalLivres }}</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body text-center">
+            <div class="display-4 text-success">👥</div>
+            <h6 class="text-muted mt-2">Adhérents Actifs</h6>
+            <h2 class="fw-bold">{{ stats().totalAdherents }}</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body text-center">
+            <div class="display-4 text-info">📊</div>
+            <h6 class="text-muted mt-2">Emprunts/Mois</h6>
+            <h2 class="fw-bold">{{ stats().totalEmprunts }}</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body text-center">
+            <div class="display-4 text-warning">⚠️</div>
+            <h6 class="text-muted mt-2">En Retard</h6>
+            <h2 class="fw-bold text-danger">{{ stats().livresEnRetard }}</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Stats Row -->
+    <div class="row g-4 mb-5">
+      <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h6 class="card-title fw-bold">📖 Emprunts Actuels</h6>
+            <h3 class="text-primary">{{ stats().empruntsActifs }}</h3>
+            <small class="text-muted">Emprunts en cours</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h6 class="card-title fw-bold">✋ Réservations</h6>
+            <h3 class="text-info">{{ stats().reservationsEnAttente }}</h3>
+            <small class="text-muted">En attente de disponibilité</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Books -->
+    <div class="card shadow-sm border-0 mb-5">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">🏆 Livres les Plus Empruntés</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Titre</th>
+                <th>Emprunts</th>
+                <th>Popularité</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (livre of topLivres(); track livre.titre; let i = $index) {
+                <tr>
+                  <td>
+                    <strong>#{{ i + 1 }}</strong> {{ livre.titre }}
+                  </td>
+                  <td>{{ livre.emprunts }} emprunts</td>
+                  <td>
+                    <div class="progress" style="height: 20px">
+                      <div
+                        class="progress-bar bg-success"
+                        [style.width.%]="(livre.emprunts / stats().totalEmprunts) * 100"
+                      >
+                        {{ ((livre.emprunts / stats().totalEmprunts) * 100).toFixed(0) }}%
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,92 @@
+<div class="container py-5">
+  <h1 class="display-5 fw-bold mb-5">Gestion des Emprunts</h1>
+
+  <!-- Tabs Navigation -->
+  <ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="actifs-tab" data-bs-toggle="tab" data-bs-target="#actifs" type="button">
+        📚 Emprunts Actifs ({{ empruntsActifs().length }})
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="retard-tab" data-bs-toggle="tab" data-bs-target="#retard" type="button">
+        ⚠️ En Retard ({{ empruntsEnRetard().length }})
+      </button>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Active Borrows Tab -->
+    <div class="tab-pane fade show active" id="actifs" role="tabpanel">
+      @if (empruntsActifs().length > 0) {
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Adhérent</th>
+                <th>Livre</th>
+                <th>Date Emprunt</th>
+                <th>Date Limite</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (emprunt of empruntsActifs(); track emprunt.id) {
+                <tr>
+                  <td>{{ emprunt.adherent.nom }} {{ emprunt.adherent.prenom }}</td>
+                  <td>{{ emprunt.livre.titre }}</td>
+                  <td>{{ emprunt.dateEmprunt | date: 'short' }}</td>
+                  <td>{{ emprunt.dateLimiteRetour | date: 'short' }}</td>
+                  <td>
+                    <button class="btn btn-sm btn-success" (click)="retournerEmprunt(emprunt.id)">
+                      ✓ Marquer retourné
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="alert alert-info">Aucun emprunt actif</div>
+      }
+    </div>
+
+    <!-- Overdue Tab -->
+    <div class="tab-pane fade" id="retard" role="tabpanel">
+      @if (empruntsEnRetard().length > 0) {
+        <div class="table-responsive">
+          <table class="table table-hover align-middle table-danger">
+            <thead class="table-light">
+              <tr>
+                <th>Adhérent</th>
+                <th>Livre</th>
+                <th>Date Limite</th>
+                <th>Jours en Retard</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (emprunt of empruntsEnRetard(); track emprunt.id) {
+                <tr class="table-danger-light">
+                  <td>{{ emprunt.adherent.nom }} {{ emprunt.adherent.prenom }}</td>
+                  <td>{{ emprunt.livre.titre }}</td>
+                  <td>{{ emprunt.dateLimiteRetour | date: 'short' }}</td>
+                  <td><span class="badge bg-danger">RETARD</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-danger" (click)="retournerEmprunt(emprunt.id)">
+                      ✓ Retourné
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="alert alert-info">Aucun emprunt en retard</div>
+      }
+    </div>
+  </div>
+</div>

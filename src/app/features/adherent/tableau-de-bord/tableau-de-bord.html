@@ -1,0 +1,77 @@
+<div class="container py-5">
+  <h1 class="display-5 fw-bold mb-5">Tableau de Bord</h1>
+
+  @if (adherent()) {
+    <!-- Welcome Section -->
+    <div class="alert alert-info mb-5 p-4" role="alert">
+      <h4 class="alert-heading">👋 Bienvenue {{ adherent()?.prenom }}!</h4>
+      <p class="mb-0">Bienvenue dans votre espace personnel. Vous pouvez consulter vos emprunts, réservations et gérer votre profil.</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+      <!-- Emprunts Actifs -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm border-0 stat-card">
+          <div class="card-body text-center">
+            <div class="stat-icon">📚</div>
+            <h6 class="text-muted">Emprunts Actifs</h6>
+            <h3 class="text-primary fw-bold">{{ empruntsActifs().length }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emprunts en Retard -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm border-0 stat-card">
+          <div class="card-body text-center">
+            <div class="stat-icon">⚠️</div>
+            <h6 class="text-muted">En Retard</h6>
+            <h3 class="text-danger fw-bold">{{ empruntsEnRetard().length }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Réservations -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm border-0 stat-card">
+          <div class="card-body text-center">
+            <div class="stat-icon">✋</div>
+            <h6 class="text-muted">Réservations</h6>
+            <h3 class="text-info fw-bold">{{ reservations().length }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quota Réservations -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm border-0 stat-card">
+          <div class="card-body text-center">
+            <div class="stat-icon">📊</div>
+            <h6 class="text-muted">Quota Utilisé</h6>
+            <h3 class="text-warning fw-bold">{{ reservations().length }}/3</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row g-3">
+      <div class="col-md-4">
+        <a [routerLink]="['/tableau-de-bord/emprunts']" class="btn btn-primary btn-lg w-100">
+          📖 Mes Emprunts
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a [routerLink]="['/tableau-de-bord/reservations']" class="btn btn-info btn-lg w-100">
+          ✋ Mes Réservations
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a [routerLink]="['/tableau-de-bord/profil']" class="btn btn-secondary btn-lg w-100">
+          👤 Mon Profil
+        </a>
+      </div>
+    </div>
+  }
+</div>

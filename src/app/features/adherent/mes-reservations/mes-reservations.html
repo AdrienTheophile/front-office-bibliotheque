@@ -1,0 +1,44 @@
+<div class="container py-5">
+  <h1 class="display-5 fw-bold mb-4">Mes Réservations</h1>
+
+  <div class="alert alert-info mb-4">
+    <strong>📊 Quota:</strong> {{ nombreReservationsActives() }} / 3 réservations utilisées
+    @if (!peutReserver()) {
+      <span class="badge bg-danger">Limite atteinte</span>
+    }
+  </div>
+
+  @if (reservations().length > 0) {
+    <div class="row g-4">
+      @for (reservation of reservations(); track reservation.id) {
+        <div class="col-md-6 col-lg-4">
+          <div class="card shadow-sm border-0">
+            <div class="card-body">
+              <h6 class="card-title fw-bold">{{ reservation.livre.titre }}</h6>
+              <p class="card-text text-muted small">par {{ reservation.livre.auteur.nom }}</p>
+              
+              <div class="mb-3 small">
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Statut:</span>
+                  <span class="badge bg-info">{{ reservation.statut }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span>Date:</span>
+                  <span>{{ reservation.dateCreation | date: 'short' }}</span>
+                </div>
+              </div>
+
+              <button class="btn btn-sm btn-danger w-100" (click)="annulerReservation(reservation.id)">
+                ✗ Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="alert alert-info text-center py-5">
+      Vous n'avez pas de réservations actives
+    </div>
+  }
+</div>

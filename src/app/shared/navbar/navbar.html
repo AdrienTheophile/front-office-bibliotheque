@@ -1,0 +1,78 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" [routerLink]="['/']">📚 Bibliothèque nationale internationale de Peyragudes</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <!-- Liens publics -->
+        <li class="nav-item">
+          <a class="nav-link" [routerLink]="['/']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            Accueil
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [routerLink]="['/catalogue']" routerLinkActive="active">
+            Catalogue
+          </a>
+        </li>
+
+        <!-- Liens adhérent (authentifié) -->
+        @if (authService.estAuthentifie()) {
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="memberDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              {{ authService.adherentActuel()?.prenom }}
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="memberDropdown">
+              <li>
+                <a class="dropdown-item" [routerLink]="['/tableau-de-bord']">Tableau de bord</a>
+              </li>
+              <li>
+                <a class="dropdown-item" [routerLink]="['/tableau-de-bord/profil']">Profil</a>
+              </li>
+              <li>
+                <a class="dropdown-item" [routerLink]="['/tableau-de-bord/reservations']">
+                  Réservations
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" [routerLink]="['/tableau-de-bord/emprunts']">
+                  Emprunts
+                </a>
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item" href="javascript:;" (click)="seDeconnecter()">Déconnexion</a>
+              </li>
+            </ul>
+          </li>
+        }
+
+        <!-- Liens de connexion -->
+        @if (!authService.estAuthentifie()) {
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="['/connexion']" routerLinkActive="active">
+              Connexion
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</nav>

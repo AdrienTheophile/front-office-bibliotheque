@@ -1,0 +1,50 @@
+.filters-card {
+  border-radius: 8px;
+  top: 20px;
+}
+
+.book-card {
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.book-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+.book-cover {
+  height: 200px;
+  border-bottom: 1px solid #e0e0e0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.card-body {
+  flex-grow: 1;
+}
+
+.meta-info {
+  background: #f8f9fa;
+  padding: 0.75rem;
+  border-radius: 5px;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .filters-card {
+    position: static;
+    margin-bottom: 2rem;
+  }
+
+  .book-card {
+    margin-bottom: 1rem;
+  }
+}

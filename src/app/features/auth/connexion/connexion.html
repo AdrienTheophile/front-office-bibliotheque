@@ -1,0 +1,65 @@
+<div class="connexion-wrapper">
+  <div class="connexion-card">
+    
+    <div class="card-header-clean">
+      <div class="icon-circle">
+        <span class="book-icon">📚</span>
+      </div>
+      <h2>Bienvenue</h2>
+      <p>Connectez-vous à votre espace bibliothèque</p>
+    </div>
+
+    @if (messageErreur() && !formulaire.valid) {
+      <div class="custom-alert error">
+        <i class="bi bi-exclamation-circle"></i> {{ messageErreur() }}
+        <button type="button" class="close-btn" (click)="messageErreur.set(null)">×</button>
+      </div>
+    }
+
+    <form [formGroup]="formulaire" (ngSubmit)="seConnecter()">
+      
+      <div class="input-group">
+        <label for="email">Adresse Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          placeholder="exemple@email.com" 
+          formControlName="email"
+          [class.has-error]="obtenirMessageErreur('email')"
+        />
+        @if (obtenirMessageErreur('email')) {
+          <span class="field-error">{{ obtenirMessageErreur('email') }}</span>
+        }
+      </div>
+
+      <div class="input-group">
+        <label for="motDePasse">Mot de passe</label>
+        <input 
+          type="password" 
+          id="motDePasse" 
+          placeholder="Votre mot de passe" 
+          formControlName="motDePasse"
+          [class.has-error]="obtenirMessageErreur('motDePasse')"
+        />
+        @if (obtenirMessageErreur('motDePasse')) {
+          <span class="field-error">{{ obtenirMessageErreur('motDePasse') }}</span>
+        }
+      </div>
+
+      <button type="submit" class="btn-submit" [disabled]="enChargement()">
+        @if (enChargement()) {
+          <span class="spinner"></span> Connexion...
+        } @else {
+          Se connecter
+        }
+      </button>
+
+    </form>
+
+    <div class="card-footer-clean">
+      <div class="separator">ou</div>
+      <p>Pas encore membre ? <a href="#">Créer un compte</a></p>
+    </div>
+
+  </div>
+</div>
