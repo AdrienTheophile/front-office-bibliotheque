@@ -1,65 +1,76 @@
-<div class="connexion-wrapper">
-  <div class="connexion-card">
-    
-    <div class="card-header-clean">
-      <div class="icon-circle">
-        <span class="book-icon">📚</span>
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7 col-sm-10">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0">🔐 Connexion</h2>
+          <p class="mb-0 text-white-50">Connectez-vous à votre espace bibliothèque</p>
+        </div>
+        
+        <div class="card-body p-5">
+          <!-- Alerte d'erreur -->
+          <div *ngIf="messageErreur() && !formulaire.valid" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Erreur !</strong> {{ messageErreur() }}
+            <button type="button" class="btn-close" (click)="messageErreur.set(null)" aria-label="Close"></button>
+          </div>
+
+          <form [formGroup]="formulaire" (ngSubmit)="seConnecter()">
+            <!-- Email -->
+            <div class="mb-4">
+              <label for="email" class="form-label fw-bold">Adresse Email</label>
+              <input 
+                type="email" 
+                class="form-control form-control-lg" 
+                id="email"
+                placeholder="exemple@email.com" 
+                formControlName="email"
+                [class.is-invalid]="obtenirMessageErreur('email')">
+              <div class="invalid-feedback d-block" *ngIf="obtenirMessageErreur('email')">
+                {{ obtenirMessageErreur('email') }}
+              </div>
+            </div>
+
+            <!-- Mot de passe -->
+            <div class="mb-4">
+              <label for="motDePasse" class="form-label fw-bold">Mot de passe</label>
+              <input 
+                type="password" 
+                class="form-control form-control-lg" 
+                id="motDePasse"
+                placeholder="Votre mot de passe" 
+                formControlName="motDePasse"
+                [class.is-invalid]="obtenirMessageErreur('motDePasse')">
+              <div class="invalid-feedback d-block" *ngIf="obtenirMessageErreur('motDePasse')">
+                {{ obtenirMessageErreur('motDePasse') }}
+              </div>
+            </div>
+
+            <!-- Bouton -->
+            <div class="d-grid gap-2">
+              <button 
+                type="submit" 
+                class="btn btn-primary btn-lg fw-bold"
+                [disabled]="enChargement()">
+                <span *ngIf="!enChargement()">✓ Se connecter</span>
+                <span *ngIf="enChargement()">
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Connexion...
+                </span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Séparateur -->
+          <hr class="my-4">
+
+          <!-- Lien inscription -->
+          <div class="text-center">
+            <p class="text-muted">Pas encore membre ? 
+              <a routerLink="/inscription" class="text-decoration-none fw-bold">Créer un compte</a>
+            </p>
+          </div>
+        </div>
       </div>
-      <h2>Bienvenue</h2>
-      <p>Connectez-vous à votre espace bibliothèque</p>
     </div>
-
-    @if (messageErreur() && !formulaire.valid) {
-      <div class="custom-alert error">
-        <i class="bi bi-exclamation-circle"></i> {{ messageErreur() }}
-        <button type="button" class="close-btn" (click)="messageErreur.set(null)">×</button>
-      </div>
-    }
-
-    <form [formGroup]="formulaire" (ngSubmit)="seConnecter()">
-      
-      <div class="input-group">
-        <label for="email">Adresse Email</label>
-        <input 
-          type="email" 
-          id="email" 
-          placeholder="exemple@email.com" 
-          formControlName="email"
-          [class.has-error]="obtenirMessageErreur('email')"
-        />
-        @if (obtenirMessageErreur('email')) {
-          <span class="field-error">{{ obtenirMessageErreur('email') }}</span>
-        }
-      </div>
-
-      <div class="input-group">
-        <label for="motDePasse">Mot de passe</label>
-        <input 
-          type="password" 
-          id="motDePasse" 
-          placeholder="Votre mot de passe" 
-          formControlName="motDePasse"
-          [class.has-error]="obtenirMessageErreur('motDePasse')"
-        />
-        @if (obtenirMessageErreur('motDePasse')) {
-          <span class="field-error">{{ obtenirMessageErreur('motDePasse') }}</span>
-        }
-      </div>
-
-      <button type="submit" class="btn-submit" [disabled]="enChargement()">
-        @if (enChargement()) {
-          <span class="spinner"></span> Connexion...
-        } @else {
-          Se connecter
-        }
-      </button>
-
-    </form>
-
-    <div class="card-footer-clean">
-      <div class="separator">ou</div>
-      <p>Pas encore membre ? <a href="#">Créer un compte</a></p>
-    </div>
-
   </div>
 </div>

@@ -1,97 +1,16 @@
-/* Application root styles */
-
+/* Bootstrap Utils - Minimal custom styling */
 :host {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-.main-content {
-  flex: 1;
-  padding: 2rem 1rem;
-  background-color: #f8f9fa;
-}
-
-/* Container padding for content sections */
-.container,
-.container-fluid {
-  padding: 2rem 1rem;
-}
-
-/* Navbar customization */
 app-navbar {
   position: sticky;
   top: 0;
   z-index: 1000;
 }
 
-app-navbar ::ng-component navbar {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Footer customization */
 app-footer {
   margin-top: auto;
-  border-top: 1px solid #dee2e6;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .main-content {
-    padding: 1rem;
-  }
-
-  .container,
-  .container-fluid {
-    padding: 1rem 0.5rem;
-  }
-}
-
-/* Typography and spacing utilities */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  color: #1a1a1a;
-}
-
-p {
-  line-height: 1.6;
-  color: #555;
-}
-
-/* Card styles for consistent look */
-.card {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-}
-
-.card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-}
-
-/* Button customization */
-.btn {
-  border-radius: 6px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.btn:active {
-  transform: scale(0.98);
-}
-
-/* Links */
-a {
-  color: #00897b;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
 }

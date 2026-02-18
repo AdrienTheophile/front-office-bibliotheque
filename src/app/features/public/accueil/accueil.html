@@ -1,19 +1,19 @@
 <div class="container mt-5">
   <!-- Hero Section -->
-  <section class="hero-section py-5 text-center mb-5">
+  <section class="py-5 text-white rounded mb-5 p-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
     <h1 class="display-4 fw-bold mb-3">Bienvenue à la Bibliothèque</h1>
-    <p class="lead text-white mb-4">Découvrez notre collection de milliers de livres et gérez vos emprunts en ligne</p>
+    <p class="lead mb-4">Découvrez notre collection de milliers de livres et gérez vos emprunts en ligne</p>
     <a [routerLink]="['/catalogue']" class="btn btn-light btn-lg">Parcourir le catalogue</a>
   </section>
 
   <!-- Features Section -->
-  <section class="features-section mb-5">
+  <section class="mb-5">
     <div class="row g-4">
       <!-- Feature 1: Catalogue -->
       <div class="col-md-4">
-        <div class="card h-100 text-center shadow-sm">
+        <div class="card h-100 text-center shadow-sm border-0">
           <div class="card-body">
-            <div class="feature-icon mb-3">📚</div>
+            <div class="fs-1 mb-3">📚</div>
             <h5 class="card-title">Catalogue Riche</h5>
             <p class="card-text text-muted">
               Accédez à notre large collection de livres, classés par catégorie et langue.
@@ -24,9 +24,9 @@
 
       <!-- Feature 2: Reservations -->
       <div class="col-md-4">
-        <div class="card h-100 text-center shadow-sm">
+        <div class="card h-100 text-center shadow-sm border-0">
           <div class="card-body">
-            <div class="feature-icon mb-3">✋</div>
+            <div class="fs-1 mb-3">✋</div>
             <h5 class="card-title">Réservations Faciles</h5>
             <p class="card-text text-muted">
               Réservez jusqu'à 3 livres à l'avance pour ne jamais manquer vos lectures préférées.
@@ -37,9 +37,9 @@
 
       <!-- Feature 3: Emprunts -->
       <div class="col-md-4">
-        <div class="card h-100 text-center shadow-sm">
+        <div class="card h-100 text-center shadow-sm border-0">
           <div class="card-body">
-            <div class="feature-icon mb-3">🎁</div>
+            <div class="fs-1 mb-3">🎁</div>
             <h5 class="card-title">Emprunts Illimités</h5>
             <p class="card-text text-muted">
               Empruntez autant de livres que vous le souhaitez pour 15 jours.
@@ -51,29 +51,29 @@
   </section>
 
   <!-- Quick Stats Section -->
-  <section class="stats-section py-5 bg-light rounded p-4 mb-5">
+  <section class="py-5 bg-light rounded p-4 mb-5">
     <h2 class="text-center mb-4">Nos Chiffres</h2>
     <div class="row text-center">
       <div class="col-md-3">
-        <div class="stat-item">
+        <div class="py-3">
           <h3 class="display-6 text-primary fw-bold">1000+</h3>
           <p class="text-muted">Livres disponibles</p>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="stat-item">
+        <div class="py-3">
           <h3 class="display-6 text-success fw-bold">500+</h3>
           <p class="text-muted">Adhérents actifs</p>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="stat-item">
+        <div class="py-3">
           <h3 class="display-6 text-info fw-bold">5000+</h3>
           <p class="text-muted">Emprunts par mois</p>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="stat-item">
+        <div class="py-3">
           <h3 class="display-6 text-warning fw-bold">50+</h3>
           <p class="text-muted">Catégories</p>
         </div>
@@ -82,34 +82,9 @@
   </section>
 
   <!-- CTA Section -->
-  <section class="cta-section py-5 bg-primary text-white rounded text-center p-5">
+  <section class="py-5 bg-primary text-white rounded text-center p-5 mb-5">
     <h2 class="mb-3">Devenir Membre</h2>
     <p class="mb-4 fs-5">Inscrivez-vous gratuitement pour accéder à tous les services de la bibliothèque</p>
     <a [routerLink]="['/connexion']" class="btn btn-light btn-lg">Créer un compte</a>
   </section>
 </div>
-
-<style>
-  .hero-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 8px;
-    padding: 3rem 1rem !important;
-  }
-
-  .feature-icon {
-    font-size: 3rem;
-  }
-
-  .card {
-    border: none;
-  }
-
-  .stat-item {
-    padding: 2rem 0;
-  }
-
-  .cta-section {
-    margin-bottom: 2rem;
-  }
-</style>

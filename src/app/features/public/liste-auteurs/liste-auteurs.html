@@ -16,9 +16,9 @@
     <div class="row g-4">
       @for (auteur of auteursFiltres; track auteur.id) {
         <div class="col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm border-0 author-card">
+          <div class="card h-100 shadow-sm border-0">
             <div class="card-body">
-              <div class="author-icon mb-3">👤</div>
+              <div class="fs-1 mb-3">👤</div>
               <h5 class="card-title fw-bold">{{ auteur.nom }}</h5>
               <p class="card-text text-muted">{{ auteur.biographie }}</p>
             </div>

@@ -99,6 +99,22 @@ export class Auth {
   }
 
   /**
+   * Inscrit un nouvel adhérent
+   */
+  inscrire(donneesInscription: any) {
+    return this.http.post<Adherent>(`${API_URL}/auth/inscription`, donneesInscription).subscribe({
+      next: (adherent) => {
+        console.log('Inscription réussie:', adherent);
+        this.router.navigate(['/connexion']);
+      },
+      error: (erreur) => {
+        console.error('Erreur d\'inscription:', erreur);
+        throw erreur;
+      }
+    });
+  }
+
+  /**
    * Déconnexion de l'adhérent
    */
   seDeconnecter(): void {

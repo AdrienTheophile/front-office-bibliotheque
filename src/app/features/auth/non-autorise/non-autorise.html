@@ -1,8 +1,8 @@
-<div class="container-fluid error-container">
-  <div class="row h-100 align-items-center justify-content-center">
+<div class="container-fluid py-5">
+  <div class="row h-100 align-items-center justify-content-center min-vh-100">
     <div class="col-12 col-md-6 text-center">
-      <div class="error-content">
-        <div class="error-icon">🚫</div>
+      <div>
+        <div class="fs-1 mb-3">🚫</div>
         <h1 class="display-3 fw-bold mb-3">403</h1>
         <h2 class="mb-3">Accès Refusé</h2>
         <p class="lead text-muted mb-5">
@@ -15,8 +15,8 @@
           </p>
         </div>
 
-        <div class="action-buttons">
-          <a [routerLink]="['/']" class="btn btn-primary btn-lg me-2">
+        <div class="d-flex gap-2 justify-content-center">
+          <a [routerLink]="['/']" class="btn btn-primary btn-lg">
             Accueil
           </a>
           <a [routerLink]="['/catalogue']" class="btn btn-outline-primary btn-lg">

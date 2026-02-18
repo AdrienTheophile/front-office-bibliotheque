@@ -3,9 +3,11 @@
     <div class="row">
       <!-- Book Cover -->
       <div class="col-md-4 mb-4">
-        <div class="book-cover-container">
-          <div class="book-cover-icon">📖</div>
-          <p class="text-muted text-center mt-2">{{ livre.categorie }}</p>
+        <div class="card shadow-sm border-0">
+          <div class="card-body text-center py-5 bg-light">
+            <div class="fs-1 mb-3">📖</div>
+            <p class="text-muted mb-0">{{ livre.categorie }}</p>
+          </div>
         </div>
       </div>
 
@@ -13,12 +15,14 @@
       <div class="col-md-8">
         <h1 class="display-5 fw-bold mb-3">{{ livre.titre }}</h1>
         
-        <div class="author-info mb-4 p-3 bg-light rounded">
-          <p class="mb-0"><strong>Auteur:</strong> {{ livre.auteur.nom }}</p>
-          <p class="text-muted small mb-0">{{ livre.auteur.biographie }}</p>
+        <div class="card border-0 bg-light mb-4">
+          <div class="card-body">
+            <p class="mb-1"><strong>Auteur:</strong> {{ livre.auteur.nom }}</p>
+            <p class="text-muted small mb-0">{{ livre.auteur.biographie }}</p>
+          </div>
         </div>
 
-        <div class="book-meta mb-4">
+        <div class="mb-4">
           <div class="row g-3">
             <div class="col-sm-6">
               <strong>📅 Année:</strong> {{ livre.annee }}
@@ -59,8 +63,8 @@
         }
 
         <!-- Actions -->
-        <div class="action-buttons mb-4">
-          <button class="btn btn-primary btn-lg me-2" [disabled]="livre.statut !== 'disponible'">
+        <div class="mb-4 d-flex gap-2">
+          <button class="btn btn-primary btn-lg" [disabled]="livre.statut !== 'disponible'">
             📥 Emprunter ce livre
           </button>
           <button class="btn btn-outline-primary btn-lg">

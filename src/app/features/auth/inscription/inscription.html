@@ -1,0 +1,133 @@
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8 col-sm-10">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0">📝 Créer mon compte adhérent</h2>
+        </div>
+        
+        <div class="card-body p-5">
+          <!-- Alerte d'erreur -->
+          <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Erreur !</strong> {{ errorMessage }}
+            <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+          </div>
+
+          <!-- Alerte de succès -->
+          <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Succès !</strong> {{ successMessage }}
+            <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+          </div>
+
+          <form [formGroup]="inscriptionForm" (ngSubmit)="onSubmit()">
+            <!-- Prénom -->
+            <div class="mb-4">
+              <label for="prenom" class="form-label fw-bold">Prénom</label>
+              <input 
+                type="text" 
+                class="form-control form-control-lg" 
+                id="prenom"
+                formControlName="prenom"
+                placeholder="Votre prénom"
+                [class.is-invalid]="isFieldInvalid('prenom')">
+              <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('prenom')">
+                Le prénom est requis (min. 2 caractères)
+              </div>
+            </div>
+
+            <!-- Nom -->
+            <div class="mb-4">
+              <label for="nom" class="form-label fw-bold">Nom</label>
+              <input 
+                type="text" 
+                class="form-control form-control-lg" 
+                id="nom"
+                formControlName="nom"
+                placeholder="Votre nom"
+                [class.is-invalid]="isFieldInvalid('nom')">
+              <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('nom')">
+                Le nom est requis (min. 2 caractères)
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-4">
+              <label for="email" class="form-label fw-bold">Email</label>
+              <input 
+                type="email" 
+                class="form-control form-control-lg" 
+                id="email"
+                formControlName="email"
+                placeholder="votre.email@exemple.com"
+                [class.is-invalid]="isFieldInvalid('email')">
+              <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('email')">
+                Veuillez entrer une adresse email valide
+              </div>
+            </div>
+
+            <!-- Mot de passe -->
+            <div class="mb-4">
+              <label for="motDePasse" class="form-label fw-bold">Mot de passe</label>
+              <input 
+                type="password" 
+                class="form-control form-control-lg" 
+                id="motDePasse"
+                formControlName="motDePasse"
+                placeholder="Au moins 8 caractères"
+                [class.is-invalid]="isFieldInvalid('motDePasse')">
+              <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('motDePasse')">
+                Le mot de passe doit contenir au moins 8 caractères
+              </div>
+            </div>
+
+            <!-- Téléphone -->
+            <div class="mb-4">
+              <label for="telephone" class="form-label fw-bold">Téléphone <span class="text-muted">(optionnel)</span></label>
+              <input 
+                type="tel" 
+                class="form-control form-control-lg" 
+                id="telephone"
+                formControlName="telephone"
+                placeholder="+33 6 XX XX XX XX">
+            </div>
+
+            <!-- Adresse -->
+            <div class="mb-4">
+              <label for="adresse" class="form-label fw-bold">Adresse <span class="text-muted">(optionnel)</span></label>
+              <input 
+                type="text" 
+                class="form-control form-control-lg" 
+                id="adresse"
+                formControlName="adresse"
+                placeholder="Votre adresse complète">
+            </div>
+
+            <!-- Boutons -->
+            <div class="d-grid gap-2 mt-5">
+              <button 
+                type="submit" 
+                class="btn btn-primary btn-lg fw-bold"
+                [disabled]="isLoading">
+                <span *ngIf="!isLoading">✓ Créer mon compte</span>
+                <span *ngIf="isLoading">
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Création en cours...
+                </span>
+              </button>
+              <a routerLink="/connexion" class="btn btn-outline-primary btn-lg fw-bold">
+                Retourner à la connexion
+              </a>
+            </div>
+          </form>
+
+          <!-- Lien vers connexion -->
+          <div class="text-center mt-4">
+            <p class="text-muted">Vous avez déjà un compte ? 
+              <a routerLink="/connexion" class="text-decoration-none fw-bold">Se connecter</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

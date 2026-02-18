@@ -7,6 +7,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/connexion/connexion').then(m => m.Connexion)
   },
   {
+    path: 'inscription',
+    loadComponent: () => import('./features/auth/inscription/inscription').then(m => m.Inscription)
+  },
+  {
     path: 'non-autorise',
     loadComponent: () => import('./features/auth/non-autorise/non-autorise').then(m => m.NonAutorise)
   },
