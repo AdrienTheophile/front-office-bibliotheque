@@ -2,10 +2,12 @@ import {
   HttpInterceptor,
   HttpRequest,
   HttpHandler,
-  HttpEvent
+  HttpEvent,
+  HttpErrorResponse
 } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Auth } from '../services/auth';
 
 @Injectable()
@@ -15,8 +17,8 @@ export class IntercepteurJwt implements HttpInterceptor {
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const token = this.authService.obtenirToken();
 
+    // Ajoute le token JWT si disponible
     if (token) {
-      // Ajoute le token au header Authorization
       req = req.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`
@@ -24,6 +26,16 @@ export class IntercepteurJwt implements HttpInterceptor {
       });
     }
 
-    return next.handle(req);
+    // Gère les erreurs HTTP
+    return next.handle(req).pipe(
+      catchError((error: HttpErrorResponse) => {
+        // Si c'est une erreur d'authentification (401), déconnecter
+        if (error.status === 401) {
+          this.authService.seDeconnecter();
+        }
+
+        return throwError(() => error);
+      })
+    );
   }
 }

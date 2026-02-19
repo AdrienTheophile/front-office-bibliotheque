@@ -8,19 +8,13 @@ export enum StatutReservation {
   ANNULEE = 'annulee'
 }
 
-/**
- * Modèle pour une Réservation
- * Règles métier:
- * - Maximum 3 réservations simultanées par adhérent
- * - Une réservation expire après 7 jours
- * - Ne peut pas réserver un livre déjà réservé par un autre adhérent
- * - Ne peut pas réserver un livre actuellement emprunté
- */
 export interface Reservation {
-  id: number;
+  idReservation: number;
+  idResa: number; // Alias pour idReservation (obligatoire)
   livre: Livre;
   adherent: Adherent;
-  dateCreation: Date;
-  dateExpiration: Date; // dateCreation + 7 jours
+  dateCreation: string;
+  dateResa: string; // Alias pour dateCreation
+  dateExpiration: string;
   statut: StatutReservation;
 }

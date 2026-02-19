@@ -23,7 +23,7 @@
             <label class="form-label fw-bold">Catégorie</label>
             <select class="form-select" [(ngModel)]="selectedCategory">
               <option value="">Toutes les catégories</option>
-              @for (cat of categories; track cat) {
+              @for (cat of categories(); track cat) {
                 <option [value]="cat">{{ cat }}</option>
               }
             </select>
@@ -61,14 +61,14 @@
       <!-- Books Grid -->
       @if (livresFiltres().length > 0) {
         <div class="row g-4">
-          @for (livre of livresFiltres(); track livre.id) {
+          @for (livre of livresFiltres(); track livre.idLivre) {
             <div class="col-md-6 col-lg-4">
               <div class="card h-100 book-card shadow-sm border-0">
                 <!-- Book Cover -->
                 <div class="book-cover bg-light d-flex align-items-center justify-content-center">
                   <div class="text-center">
                     <div class="display-1 mb-2">📖</div>
-                    <small class="text-muted">{{ livre.categorie }}</small>
+                    <small class="text-muted">{{ livre.categories[0]?.nom }}</small>
                   </div>
                 </div>
 
@@ -76,44 +76,30 @@
                 <div class="card-body">
                   <h6 class="card-title fw-bold text-truncate">{{ livre.titre }}</h6>
                   <p class="card-text small text-muted">
-                    par <span class="fw-semibold">{{ livre.auteur.nom }}</span>
+                    par <span class="fw-semibold">{{ livre.auteurs[0]?.nom }}</span>
                   </p>
 
                   <!-- Meta Info -->
                   <div class="bg-light p-2 rounded small mb-3">
                     <div class="d-flex justify-content-between mb-1">
                       <span>📅</span>
-                      <span>{{ livre.annee }}</span>
+                      <span>{{ livre.dateSortie | date:'yyyy' }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-1">
                       <span>🌍</span>
                       <span>{{ livre.langue }}</span>
                     </div>
-                    <div class="d-flex justify-content-between">
-                      <span>📚</span>
-                      <span>{{ livre.nombreExemplaires }} ex.</span>
-                    </div>
                   </div>
 
                   <!-- Status Badge -->
                   <div class="mb-3">
-                    @switch (livre.statut) {
-                      @case ('disponible') {
-                        <span class="badge bg-success">Disponible</span>
-                      }
-                      @case ('emprunte') {
-                        <span class="badge bg-danger">Emprunté</span>
-                      }
-                      @case ('reserve') {
-                        <span class="badge bg-warning text-dark">Réservé</span>
-                      }
-                    }
+                    <span class="badge bg-secondary">Statut non disponible</span>
                   </div>
                 </div>
 
                 <!-- Card Footer -->
                 <div class="card-footer bg-white border-top">
-                  <a [routerLink]="['/livres', livre.id]" class="btn btn-sm btn-primary w-100">
+                  <a [routerLink]="['/livres', livre.idLivre]" class="btn btn-sm btn-primary w-100">
                     Voir détails
                   </a>
                 </div>

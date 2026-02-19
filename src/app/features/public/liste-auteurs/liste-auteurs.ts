@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Auteur } from '../../../core/models';
@@ -10,17 +10,48 @@ import { Auteur } from '../../../core/models';
 })
 export class ListeAuteurs {
   auteurs = signal<Auteur[]>([
-    { id: 1, nom: 'Victor Hugo', biographie: 'Écrivain français du 19ème siècle' },
-    { id: 2, nom: 'Gustave Flaubert', biographie: 'Auteur français de Madame Bovary' },
-    { id: 3, nom: 'Émile Zola', biographie: 'Écrivain naturaliste français' },
-    { id: 4, nom: 'Jules Verne', biographie: 'Auteur de science-fiction français' },
+    { 
+      idAut: 1,
+      nom: 'Hugo', 
+      prenom: 'Victor', 
+      dateNaissance: '1802-02-26',
+      dateDeces: '1885-05-22',
+      description: 'Écrivain français du 19ème siècle'
+    },
+    { 
+      idAut: 2, 
+      nom: 'Flaubert', 
+      prenom: 'Gustave', 
+      dateNaissance: '1821-12-12',
+      dateDeces: '1880-05-08',
+      description: 'Auteur français de Madame Bovary'
+    },
+    { 
+      idAut: 3, 
+      nom: 'Zola', 
+      prenom: 'Émile', 
+      dateNaissance: '1840-04-02',
+      dateDeces: '1902-09-28',
+      description: 'Écrivain naturaliste français'
+    },
+    { 
+      idAut: 4, 
+      nom: 'Verne', 
+      prenom: 'Jules', 
+      dateNaissance: '1828-02-08',
+      dateDeces: '1905-03-24',
+      description: 'Auteur de science-fiction français'
+    },
   ]);
 
   rechercheAuteur = signal('');
 
   get auteursFiltres(): Auteur[] {
     const terme = this.rechercheAuteur().toLowerCase();
-    return this.auteurs().filter(a => a.nom.toLowerCase().includes(terme));
+    return this.auteurs().filter(a => 
+      (a.nom.toLowerCase().includes(terme)) || 
+      (a.prenom?.toLowerCase().includes(terme))
+    );
   }
 }
 

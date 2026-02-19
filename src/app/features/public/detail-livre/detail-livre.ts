@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LivreService } from '../../../core';
-import { Livre } from '../../../core/models';
+import { Livre, estDisponible } from '../../../core/models';
 
 @Component({
   selector: 'app-detail-livre',
@@ -14,6 +14,7 @@ export class DetailLivre implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   livre: Livre | null = null;
+  estDisponible = estDisponible;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {

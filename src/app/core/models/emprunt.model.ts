@@ -7,19 +7,15 @@ export enum StatutEmprunt {
   RETOURNE = 'retourne'
 }
 
-/**
- * Modèle pour un Emprunt
- * Règles métier:
- * - Durée maximale: 15 jours
- * - Après J+15, l'emprunt est marqué "en retard"
- * - Ne peut pas réserver un livre déjà emprunté
- */
 export interface Emprunt {
-  id: number;
+  idEmprunt: number;
+  idEmp: number; // Alias pour idEmprunt (obligatoire)
   livre: Livre;
   adherent: Adherent;
-  dateEmprunt: Date;
-  dateLimiteRetour: Date; // dateEmprunt + 15 jours
-  dateRetourEffective?: Date; // undefined si non retourné
+  dateEmprunt: string;
+  dateLimiteRetour: string;
+  dateRetour: string; // Alias pour dateLimiteRetour
+  dateRetourReel?: string | null; // Alias pour dateRetourEffective
+  dateRetourEffective?: string | null;
   statut: StatutEmprunt;
 }

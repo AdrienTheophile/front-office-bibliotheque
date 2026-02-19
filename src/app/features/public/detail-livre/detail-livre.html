@@ -6,7 +6,7 @@
         <div class="card shadow-sm border-0">
           <div class="card-body text-center py-5 bg-light">
             <div class="fs-1 mb-3">📖</div>
-            <p class="text-muted mb-0">{{ livre.categorie }}</p>
+            <p class="text-muted mb-0">{{ livre.categories[0]?.nom }}</p>
           </div>
         </div>
       </div>
@@ -17,40 +17,31 @@
         
         <div class="card border-0 bg-light mb-4">
           <div class="card-body">
-            <p class="mb-1"><strong>Auteur:</strong> {{ livre.auteur.nom }}</p>
-            <p class="text-muted small mb-0">{{ livre.auteur.biographie }}</p>
+            <p class="mb-1"><strong>Auteur:</strong> {{ livre.auteurs[0]?.nom }}</p>
+            <p class="text-muted small mb-0">{{ livre.auteurs[0]?.description }}</p>
           </div>
         </div>
 
         <div class="mb-4">
           <div class="row g-3">
             <div class="col-sm-6">
-              <strong>📅 Année:</strong> {{ livre.annee }}
+              <strong>📅 Année:</strong> {{ livre.dateSortie | date:'yyyy' }}
             </div>
             <div class="col-sm-6">
               <strong>🌍 Langue:</strong> {{ livre.langue }}
             </div>
             <div class="col-sm-6">
-              <strong>📚 Catégorie:</strong> {{ livre.categorie }}
-            </div>
-            <div class="col-sm-6">
-              <strong>📦 Exemplaires:</strong> {{ livre.nombreExemplaires }}
+              <strong>📚 Catégorie:</strong> {{ livre.categories[0]?.nom }}
             </div>
           </div>
         </div>
 
         <!-- Status -->
         <div class="mb-4">
-          @switch (livre.statut) {
-            @case ('disponible') {
-              <span class="badge bg-success fs-6">✓ Disponible pour emprunt</span>
-            }
-            @case ('emprunte') {
-              <span class="badge bg-danger fs-6">✗ Actuellement emprunté</span>
-            }
-            @case ('reserve') {
-              <span class="badge bg-warning text-dark fs-6">⏱ En réservation</span>
-            }
+          @if (livre && estDisponible(livre)) {
+            <span class="badge bg-success fs-6">✓ Disponible pour emprunt</span>
+          } @else {
+            <span class="badge bg-danger fs-6">✗ Actuellement indisponible</span>
           }
         </div>
 
@@ -64,7 +55,7 @@
 
         <!-- Actions -->
         <div class="mb-4 d-flex gap-2">
-          <button class="btn btn-primary btn-lg" [disabled]="livre.statut !== 'disponible'">
+          <button class="btn btn-primary btn-lg" [disabled]="!livre || !estDisponible(livre)">
             📥 Emprunter ce livre
           </button>
           <button class="btn btn-outline-primary btn-lg">

@@ -14,13 +14,13 @@
   <!-- Authors Grid -->
   @if (auteursFiltres.length > 0) {
     <div class="row g-4">
-      @for (auteur of auteursFiltres; track auteur.id) {
+      @for (auteur of auteursFiltres; track auteur.idAut) {
         <div class="col-md-6 col-lg-4">
           <div class="card h-100 shadow-sm border-0">
             <div class="card-body">
               <div class="fs-1 mb-3">👤</div>
-              <h5 class="card-title fw-bold">{{ auteur.nom }}</h5>
-              <p class="card-text text-muted">{{ auteur.biographie }}</p>
+              <h5 class="card-title fw-bold">{{ auteur.prenom }} {{ auteur.nom }}</h5>
+              <p class="card-text text-muted">{{ auteur.description }}</p>
             </div>
             <div class="card-footer bg-white border-top">
               <button class="btn btn-sm btn-primary w-100">

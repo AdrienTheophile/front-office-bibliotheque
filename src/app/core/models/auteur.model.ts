@@ -1,5 +1,16 @@
+import { Livre } from './livre.model';
+
+/**
+ * Interface Auteur correspondant à l'API Symfony
+ */
 export interface Auteur {
-  id: number;
+  idAut: number;
   nom: string;
-  biographie?: string;
+  prenom: string;
+  dateNaissance?: string;
+  dateDeces?: string | null;
+  nationalite?: string;
+  photo?: string;
+  description?: string;
+  livres?: Livre[];
 }

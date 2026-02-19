@@ -2,8 +2,10 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Adherent, Identifiants, ReponseAuth } from '../models';
+import { tap } from 'rxjs/operators';
 
-const API_URL = 'http://localhost:8000/api'; // À adapter selon votre configuration
+// Configuration de l'API
+const API_URL = 'http://localhost:8000/api';
 
 @Injectable({
   providedIn: 'root'
@@ -15,17 +17,17 @@ export class Auth {
   private readonly CLE_JWT = 'auth_token';
   private readonly CLE_ADHERENT = 'auth_adherent';
 
-  // Signal pour l'adhérent actuellement authentifié
+  // Signaux d'authentification
   private readonly adherentActuelSignal = signal<Adherent | null>(this.chargerAdherentDuStockage());
-
-  // Signal pour le token
   private readonly tokenSignal = signal<string | null>(this.obtenirTokenDuStockage());
+  private readonly chargementSignal = signal(false);
+  private readonly erreurSignal = signal<string | null>(null);
 
   // Computed pour savoir si l'utilisateur est authentifié
   readonly estAuthentifie = computed(() => this.tokenSignal() !== null);
-
-  // Computed pour l'adhérent courant
   readonly adherentActuel = computed(() => this.adherentActuelSignal());
+  readonly chargement = computed(() => this.chargementSignal());
+  readonly erreur = computed(() => this.erreurSignal());
 
   constructor() {
     this.initialiserDuStockage();
@@ -80,38 +82,51 @@ export class Auth {
   }
 
   /**
-   * Authentifie un adhérent
+   * Authentifie un adhérent (connexion)
    */
   seConnecter(identifiants: Identifiants) {
-    return this.http.post<ReponseAuth>(`${API_URL}/auth/connexion`, identifiants).subscribe({
-      next: (reponse) => {
-        this.tokenSignal.set(reponse.token);
-        this.adherentActuelSignal.set(reponse.adherent);
-        this.sauvegarderTokenAuStockage(reponse.token);
-        this.sauvegarderAdherentAuStockage(reponse.adherent);
-        this.router.navigate(['/tableau-de-bord']);
-      },
-      error: (erreur) => {
-        console.error('Erreur d\'authentification:', erreur);
-        throw erreur;
-      }
-    });
+    this.chargementSignal.set(true);
+    this.erreurSignal.set(null);
+
+    return this.http.post<ReponseAuth>(`${API_URL}/auth/connexion`, identifiants).pipe(
+      tap({
+        next: (reponse) => {
+          this.tokenSignal.set(reponse.token);
+          this.adherentActuelSignal.set(reponse.adherent);
+          this.sauvegarderTokenAuStockage(reponse.token);
+          this.sauvegarderAdherentAuStockage(reponse.adherent);
+          this.chargementSignal.set(false);
+          this.router.navigate(['/tableau-de-bord']);
+        },
+        error: (erreur) => {
+          this.erreurSignal.set('Erreur d\'authentification: vérifiez vos identifiants');
+          this.chargementSignal.set(false);
+          console.error('Erreur d\'authentification:', erreur);
+        }
+      })
+    );
   }
 
   /**
    * Inscrit un nouvel adhérent
    */
   inscrire(donneesInscription: any) {
-    return this.http.post<Adherent>(`${API_URL}/auth/inscription`, donneesInscription).subscribe({
-      next: (adherent) => {
-        console.log('Inscription réussie:', adherent);
-        this.router.navigate(['/connexion']);
-      },
-      error: (erreur) => {
-        console.error('Erreur d\'inscription:', erreur);
-        throw erreur;
-      }
-    });
+    this.chargementSignal.set(true);
+    this.erreurSignal.set(null);
+
+    return this.http.post<Adherent>(`${API_URL}/auth/inscription`, donneesInscription).pipe(
+      tap({
+        next: (adherent) => {
+          this.chargementSignal.set(false);
+          this.router.navigate(['/connexion']);
+        },
+        error: (erreur) => {
+          this.erreurSignal.set('Erreur d\'inscription');
+          this.chargementSignal.set(false);
+          console.error('Erreur d\'inscription:', erreur);
+        }
+      })
+    );
   }
 
   /**
@@ -137,6 +152,13 @@ export class Auth {
   }
 
   /**
+   * Récupère l'adhérent courant
+   */
+  obtenirAdherent(): Adherent | null {
+    return this.adherentActuelSignal();
+  }
+
+  /**
    * Vérifie si l'adhérent a un rôle spécifique
    */
   aLeRole(role: string): boolean {
@@ -149,5 +171,26 @@ export class Auth {
   aLunDesRoles(roles: string[]): boolean {
     const adherent = this.adherentActuelSignal();
     return adherent ? roles.includes(adherent.role) : false;
+  }
+
+  /**
+   * Vérifie si l'adhérent est une bibliothécaire
+   */
+  estBibliothecaire(): boolean {
+    return this.aLeRole('bibliothecaire');
+  }
+
+  /**
+   * Vérifie si l'adhérent est responsable
+   */
+  estResponsable(): boolean {
+    return this.aLeRole('responsable');
+  }
+
+  /**
+   * Vérifie si l'adhérent est adhérent simple
+   */
+  estAdherent(): boolean {
+    return this.aLeRole('adherent');
   }
 }

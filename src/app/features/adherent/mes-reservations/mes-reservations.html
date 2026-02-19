@@ -10,25 +10,21 @@
 
   @if (reservations().length > 0) {
     <div class="row g-4">
-      @for (reservation of reservations(); track reservation.id) {
+      @for (reservation of reservations(); track reservation.idResa) {
         <div class="col-md-6 col-lg-4">
           <div class="card shadow-sm border-0">
             <div class="card-body">
               <h6 class="card-title fw-bold">{{ reservation.livre.titre }}</h6>
-              <p class="card-text text-muted small">par {{ reservation.livre.auteur.nom }}</p>
+              <p class="card-text text-muted small">par {{ reservation.livre.auteurs[0]?.nom }}</p>
               
               <div class="mb-3 small">
-                <div class="d-flex justify-content-between mb-1">
-                  <span>Statut:</span>
-                  <span class="badge bg-info">{{ reservation.statut }}</span>
-                </div>
                 <div class="d-flex justify-content-between">
                   <span>Date:</span>
-                  <span>{{ reservation.dateCreation | date: 'short' }}</span>
+                  <span>{{ reservation.dateResa | date: 'short' }}</span>
                 </div>
               </div>
 
-              <button class="btn btn-sm btn-danger w-100" (click)="annulerReservation(reservation.id)">
+              <button class="btn btn-sm btn-danger w-100" (click)="annulerReservation(reservation.idResa)">
                 ✗ Annuler
               </button>
             </div>

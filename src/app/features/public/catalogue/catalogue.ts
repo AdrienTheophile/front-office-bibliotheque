@@ -1,9 +1,10 @@
-import { Component, inject, effect, signal } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { LivreService } from '../../../core';
-import { Livre, Categorielivre, Langue } from '../../../core/models';
+import { LivreService } from '../../../core/services/book';
+import { Livre, Langue } from '../../../core/models';
 
 @Component({
   selector: 'app-catalogue',
@@ -16,46 +17,60 @@ export class Catalogue {
 
   // Signals pour les filtres
   searchTerm = signal('');
-  selectedCategory = signal<Categorielivre | ''>('');
-  selectedLanguage = signal<Langue | ''>('');
+  selectedCategory = signal<number | null>(null);
+  selectedLanguage = signal<Langue | null>(null);
 
   // Accès aux données du service
   livresFiltres = this.livreService.livresFiltres;
-  categories = Object.values(Categorielivre);
-  languages = Object.values(Langue);
+  pagination = this.livreService.pagination;
+  chargement = this.livreService.chargement;
+  erreur = this.livreService.erreur;
+  
+  // Convertir les Observables en Signals
+  categories = toSignal(this.livreService.obtenirCategories());
+  auteurs = toSignal(this.livreService.obtenirAuteurs());
+
+  languages = [
+    { code: 'FR', label: 'Français' },
+    { code: 'EN', label: 'Anglais' }
+  ];
 
   constructor() {
     // Charger les livres au démarrage
-    this.livreService.chargerLivres();
+    this.livreService.chargerLivres(1, 10).subscribe();
 
-    // Effect pour mettre à jour le filtre de recherche
+    // Effect pour appliquer les filtres
     effect(() => {
-      this.livreService.definirRecherche(this.searchTerm());
-    });
-
-    // Effect pour mettre à jour le filtre de catégorie
-    effect(() => {
-      if (this.selectedCategory()) {
-        this.livreService.definirFiltreCategorie(this.selectedCategory() as Categorielivre);
-      }
-    });
-
-    // Effect pour mettre à jour le filtre de langue
-    effect(() => {
-      if (this.selectedLanguage()) {
-        this.livreService.definirFiltreLangue(this.selectedLanguage() as Langue);
-      }
+      this.appliquerFiltre();
     });
   }
 
+  /**
+   * Applique les filtres courants
+   */
+  appliquerFiltre(): void {
+    this.livreService.appliquerFiltres(
+      this.searchTerm() || undefined,
+      this.selectedCategory() || undefined,
+      this.selectedCategory() || undefined,
+      this.selectedLanguage() || undefined
+    );
+  }
+
+  /**
+   * Réinitialise tous les filtres
+   */
   reinitialiserFiltres(): void {
     this.searchTerm.set('');
-    this.selectedCategory.set('');
-    this.selectedLanguage.set('');
+    this.selectedCategory.set(null);
+    this.selectedLanguage.set(null);
     this.livreService.reinitialiserFiltres();
   }
 
-  selectLivre(livre: Livre): void {
-    this.livreService.selectionnerLivre(livre.id);
+  /**
+   * Va à une page spécifique
+   */
+  allerPage(page: number): void {
+    this.livreService.chargerLivres(page, 10).subscribe();
   }
 }

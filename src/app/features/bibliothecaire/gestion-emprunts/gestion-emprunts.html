@@ -32,14 +32,14 @@
               </tr>
             </thead>
             <tbody>
-              @for (emprunt of empruntsActifs(); track emprunt.id) {
+              @for (emprunt of empruntsActifs(); track emprunt.idEmp) {
                 <tr>
                   <td>{{ emprunt.adherent.nom }} {{ emprunt.adherent.prenom }}</td>
                   <td>{{ emprunt.livre.titre }}</td>
                   <td>{{ emprunt.dateEmprunt | date: 'short' }}</td>
-                  <td>{{ emprunt.dateLimiteRetour | date: 'short' }}</td>
+                  <td>{{ emprunt.dateRetour | date: 'short' }}</td>
                   <td>
-                    <button class="btn btn-sm btn-success" (click)="retournerEmprunt(emprunt.id)">
+                    <button class="btn btn-sm btn-success" (click)="retournerEmprunt(emprunt.idEmp)">
                       ✓ Marquer retourné
                     </button>
                   </td>
@@ -68,14 +68,14 @@
               </tr>
             </thead>
             <tbody>
-              @for (emprunt of empruntsEnRetard(); track emprunt.id) {
+              @for (emprunt of empruntsEnRetard(); track emprunt.idEmp) {
                 <tr class="table-danger-light">
                   <td>{{ emprunt.adherent.nom }} {{ emprunt.adherent.prenom }}</td>
                   <td>{{ emprunt.livre.titre }}</td>
-                  <td>{{ emprunt.dateLimiteRetour | date: 'short' }}</td>
+                  <td>{{ emprunt.dateRetour | date: 'short' }}</td>
                   <td><span class="badge bg-danger">RETARD</span></td>
                   <td>
-                    <button class="btn btn-sm btn-danger" (click)="retournerEmprunt(emprunt.id)">
+                    <button class="btn btn-sm btn-danger" (click)="retournerEmprunt(emprunt.idEmp)">
                       ✓ Retourné
                     </button>
                   </td>

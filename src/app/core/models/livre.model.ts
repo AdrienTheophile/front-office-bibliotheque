@@ -1,33 +1,34 @@
 import { Auteur } from './auteur.model';
+import { Categorie } from './categorie.model';
+import { Emprunt } from './emprunt.model';
+import { Reservation } from './reservation.model';
 
-export enum Categorielivre {
-  SF = 'SF',
-  DYSTOPIE = 'Dystopie',
-  JEUNESSE = 'Jeunesse',
-  ROMAN = 'Roman',
-  ESSAI = 'Essai',
-  INFORMATIQUE = 'Informatique'
-}
-
+/** Enums pour les énumérations */
 export enum Langue {
   FR = 'FR',
   EN = 'EN'
 }
 
-export enum StatutLivre {
-  DISPONIBLE = 'disponible',
-  EMPRUNTE = 'emprunte',
-  RESERVE = 'reserve'
+/**
+ * Interface Livre correspondant à l'API Symfony
+ */
+export interface Livre {
+  idLivre: number;
+  titre: string;
+  dateSortie: string;
+  langue: Langue;
+  photoCouverture?: string;
+  auteurs: Auteur[];
+  categories: Categorie[];
+  description?: string;
+  emprunts?: Emprunt[];
+  reservations?: Reservation;
 }
 
-export interface Livre {
-  id: number;
-  titre: string;
-  auteur: Auteur;
-  annee: number;
-  langue: Langue;
-  categorie: Categorielivre;
-  description?: string;
-  statut: StatutLivre;
-  nombreExemplaires: number;
+/**
+ * Computed: un livre est disponible si aucun emprunt actif
+ */
+export function estDisponible(livre: Livre): boolean {
+  if (!livre.emprunts || livre.emprunts.length === 0) return true;
+  return livre.emprunts.every(e => e.dateRetourReel !== null);
 }
