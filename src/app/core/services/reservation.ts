@@ -41,21 +41,21 @@ export class ReservationService {
   /**
    * Charge les réservations de l'adhérent courant
    */
-  chargerMesReservations(): Observable<Reservation[]> {
+  chargerMesReservations(): Observable<any> {
     this.chargementSignal.set(true);
     this.erreurSignal.set(null);
 
     const adherent = this.authService.obtenirAdherent();
-    if (!adherent) {
-      this.erreurSignal.set('Utilisateur non authentifié');
+    if (!adherent || !adherent.adherent) {
+      this.erreurSignal.set('Utilisateur non authentifié ou pas adhérent');
       this.chargementSignal.set(false);
       return new Observable((observer) => observer.error('Non authentifié'));
     }
 
-    return this.http.get<Reservation[]>(`${API_URL}/adherents/${adherent.id}/reservations`).pipe(
+    return this.http.get<{ reservations: Reservation[]; total: number }>(`${API_URL}/adherent/reservations`).pipe(
       tap({
-        next: (reservations) => {
-          this.mesReservationsSignal.set(reservations);
+        next: (response) => {
+          this.mesReservationsSignal.set(response.reservations ?? []);
           this.chargementSignal.set(false);
         },
         error: (erreur) => {
@@ -76,8 +76,8 @@ export class ReservationService {
    */
   creerReservation(livreId: number): Observable<Reservation> {
     const adherent = this.authService.obtenirAdherent();
-    if (!adherent) {
-      return new Observable((observer) => observer.error('Non authentifié'));
+    if (!adherent || !adherent.adherent) {
+      return new Observable((observer) => observer.error('Non authentifié ou pas adhérent'));
     }
 
     // Vérification: MAX 3 réservations
@@ -86,14 +86,14 @@ export class ReservationService {
     }
 
     // Vérification: pas de double réservation
-    const dejaReservé = this.mesReservationsSignal().some(
+    const dejaRéservé = this.mesReservationsSignal().some(
       (r) => r.livre.idLivre === livreId && r.statut === StatutReservation.ACTIVE
     );
-    if (dejaReservé) {
+    if (dejaRéservé) {
       return new Observable((observer) => observer.error('Vous avez déjà réservé ce livre'));
     }
 
-    return this.http.post<Reservation>(`${API_URL}/adherents/${adherent.id}/reservations`, { livreId }).pipe(
+    return this.http.post<any>(`${API_URL}/adherent/reservations`, { livreId }).pipe(
       tap({
         next: (reservation) => {
           this.mesReservationsSignal.update((courant) => [...courant, reservation]);
@@ -111,11 +111,11 @@ export class ReservationService {
    */
   annulerReservation(reservationId: number): Observable<void> {
     const adherent = this.authService.obtenirAdherent();
-    if (!adherent) {
-      return new Observable((observer) => observer.error('Non authentifié'));
+    if (!adherent || !adherent.adherent) {
+      return new Observable((observer) => observer.error('Non authentifié ou pas adhérent'));
     }
 
-    return this.http.delete<void>(`${API_URL}/adherents/${adherent.id}/reservations/${reservationId}`).pipe(
+    return this.http.delete<void>(`${API_URL}/adherent/reservations/${reservationId}`).pipe(
       tap({
         next: () => {
           this.mesReservationsSignal.update((courant) =>

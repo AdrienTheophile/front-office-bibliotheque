@@ -38,10 +38,6 @@
                   <span class="badge bg-success">{{ obtenirJoursAvantLimite(emprunt) }} jours</span>
                 </div>
               </div>
-
-              <button class="btn btn-sm btn-primary w-100" (click)="retournerEmprunt(emprunt.idEmp)">
-                ✓ Retourner
-              </button>
             </div>
           </div>
         </div>
@@ -67,10 +63,6 @@
               <div class="mb-3 small alert alert-danger py-2 px-2">
                 <span class="badge bg-danger">RETARD !</span> Veuillez retourner ce livre au plus tôt
               </div>
-
-              <button class="btn btn-sm btn-danger w-100" (click)="retournerEmprunt(emprunt.idEmp)">
-                ✓ Retourner d'urgence
-              </button>
             </div>
           </div>
         </div>

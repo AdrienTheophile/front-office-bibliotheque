@@ -102,10 +102,21 @@
 
           <!-- Reservation Actions -->
           <div class="mt-5 pt-3 border-top">
+            @if (messageReservation()) {
+              <div class="alert mb-3" [class.alert-success]="messageReservation()!.type === 'success'" [class.alert-danger]="messageReservation()!.type === 'error'">
+                {{ messageReservation()!.texte }}
+              </div>
+            }
+
             @if (estConnecte() && estAdherent()) {
               <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
-                <button class="btn btn-reserve" [disabled]="!estDisponible(livre()!)">
-                  🔖 Réserver ce livre
+                <button class="btn btn-reserve" [disabled]="!estDisponible(livre()!) || reservationEnCours()" (click)="reserverLivre()">
+                  @if (reservationEnCours()) {
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    Réservation en cours...
+                  } @else {
+                    🔖 Réserver ce livre
+                  }
                 </button>
                 @if (!estDisponible(livre()!)) {
                   <small class="text-danger fw-semibold">

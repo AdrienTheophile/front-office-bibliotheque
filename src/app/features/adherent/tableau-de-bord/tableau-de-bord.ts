@@ -1,21 +1,36 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Auth, EmpruntService, ReservationService } from '../../../core';
+import { Auth } from '../../../core';
+import { AdherentService } from '../../../core/services/adherent';
 
 @Component({
   selector: 'app-tableau-de-bord',
   imports: [CommonModule, RouterLink],
   templateUrl: './tableau-de-bord.html',
 })
-export class TableauDeBord {
+export class TableauDeBord implements OnInit {
   private readonly authService = inject(Auth);
-  private readonly empruntService = inject(EmpruntService);
-  private readonly reservationService = inject(ReservationService);
+  private readonly adherentService = inject(AdherentService);
 
   adherent = this.authService.adherentActuel;
-  empruntsActifs = this.empruntService.empruntsActifs;
-  empruntsEnRetard = this.empruntService.empruntsEnRetard;
-  reservations = this.reservationService.reservationsActives;
+  estAdherent = this.authService.estAdherent;
+
+  emprunts = this.adherentService.emprunts;
+  reservations = this.adherentService.reservations;
+  chargement = this.adherentService.chargement;
+  erreurEmprunts = this.adherentService.erreurEmprunts;
+  erreurReservations = this.adherentService.erreurReservations;
+
+  ngOnInit(): void {
+    if (this.authService.estAdherent()) {
+      this.adherentService.obtenirEmprunts().subscribe({
+        error: (err: any) => console.error('Erreur chargement emprunts:', err)
+      });
+      this.adherentService.obtenirReservations().subscribe({
+        error: (err: any) => console.error('Erreur chargement réservations:', err)
+      });
+    }
+  }
 }
 

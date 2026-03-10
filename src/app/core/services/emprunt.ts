@@ -50,21 +50,21 @@ export class EmpruntService {
   /**
    * Charge les emprunts de l'adhérent courant
    */
-  chargerMesEmprunts(): Observable<Emprunt[]> {
+  chargerMesEmprunts(): Observable<any> {
     this.chargementSignal.set(true);
     this.erreurSignal.set(null);
 
     const adherent = this.authService.obtenirAdherent();
-    if (!adherent) {
-      this.erreurSignal.set('Utilisateur non authentifié');
+    if (!adherent || !adherent.adherent) {
+      this.erreurSignal.set('Utilisateur non authentifié ou pas adhérent');
       this.chargementSignal.set(false);
       return new Observable((observer) => observer.error('Non authentifié'));
     }
 
-    return this.http.get<Emprunt[]>(`${API_URL}/adherents/${adherent.id}/emprunts`).pipe(
+    return this.http.get<{ emprunts: Emprunt[]; total: number }>(`${API_URL}/adherent/emprunts`).pipe(
       tap({
-        next: (emprunts) => {
-          this.mesEmpruntsSignal.set(emprunts);
+        next: (response) => {
+          this.mesEmpruntsSignal.set(response.emprunts ?? []);
           this.chargementSignal.set(false);
         },
         error: (erreur) => {
