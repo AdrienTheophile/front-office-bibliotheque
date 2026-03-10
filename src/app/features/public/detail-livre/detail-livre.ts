@@ -1,8 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { LivreService } from '../../../core';
+import { LivreService, Auth } from '../../../core';
 import { Livre, estDisponible } from '../../../core/models';
 
 @Component({
@@ -14,10 +13,14 @@ export class DetailLivre implements OnInit {
   private readonly livreService = inject(LivreService);
   private readonly route = inject(ActivatedRoute);
 
+  private readonly authService = inject(Auth);
+
   livre = signal<Livre | null>(null);
   chargement = signal(false);
   erreur = signal<string | null>(null);
   estDisponible = estDisponible;
+  estConnecte = this.authService.estAuthentifie;
+  estAdherent = this.authService.estAdherent;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {

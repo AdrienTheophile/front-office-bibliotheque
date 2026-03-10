@@ -40,12 +40,12 @@ export class Connexion {
 
     this.authService.seConnecter({
       email,
-      motDePasse
+      password: motDePasse  // Lexik attend "password", pas "motDePasse"
     }).subscribe({
       next: () => {
         this.enChargement.set(false);
       },
-      error: (erreur) => {
+      error: () => {
         this.enChargement.set(false);
         this.messageErreur.set(this.authService.erreur());
       }

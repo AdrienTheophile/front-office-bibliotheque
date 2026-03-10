@@ -63,14 +63,17 @@
         }
 
         <!-- Actions -->
-        <div class="mb-4 d-flex gap-2">
-          <button class="btn btn-primary btn-lg" [disabled]="!livre() || !estDisponible(livre()!)">
-            📥 Emprunter ce livre
-          </button>
-          <button class="btn btn-outline-primary btn-lg">
-            ✋ Réserver
-          </button>
-        </div>
+        @if (estConnecte() && estAdherent()) {
+          <div class="mb-4 d-flex gap-2">
+            <button class="btn btn-outline-primary btn-lg" [disabled]="!livre() || !estDisponible(livre()!)">
+              ✋ Réserver
+            </button>
+          </div>
+        } @else if (!estConnecte()) {
+          <div class="mb-4">
+            <a routerLink="/connexion" class="btn btn-outline-secondary">Connectez-vous pour réserver</a>
+          </div>
+        }
 
         <!-- Back Button -->
         <a [routerLink]="['/catalogue']" class="btn btn-outline-secondary">

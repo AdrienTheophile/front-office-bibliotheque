@@ -1,7 +1,11 @@
 <div class="container py-5">
   <h1 class="display-5 fw-bold mb-4">Mes Réservations</h1>
 
-  @if (chargement()) {
+  @if (nonAdherent()) {
+    <div class="alert alert-warning">
+      Votre compte n'est pas associé à un profil adhérent. Les réservations ne sont pas disponibles.
+    </div>
+  } @else if (chargement()) {
     <div class="alert alert-info text-center py-5">
       <p>Chargement de vos réservations...</p>
     </div>

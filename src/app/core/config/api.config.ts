@@ -20,9 +20,9 @@ export const API_CONFIG = {
   CATEGORIES: '/categories',
   CATEGORIES_PAR_ID: (id: number) => `/categories/${id}`,
 
-  // Routes d'authentification
-  AUTH_CONNEXION: '/auth/connexion',
-  AUTH_INSCRIPTION: '/auth/inscription',
+  // Routes d'authentification 
+  AUTH_LOGIN: '/login',
+  AUTH_USER_ME: '/user/me',
 
   // Routes des emprunts
   EMPRUNTS: '/emprunts',

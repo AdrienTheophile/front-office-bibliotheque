@@ -50,12 +50,9 @@
         @if (authService.estAuthentifie()) {
           <li class="nav-item dropdown">
             <a
-              class="nav-link nav-link-custom dropdown-toggle d-flex align-items-center gap-2"
-              href="#"
-              id="memberDropdown"
-              role="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
+              class="nav-link dropdown-toggle"
+              href="javascript:;"
+              (click)="toggleDropdown()"
             >
               <div
                 class="rounded-circle d-flex align-items-center justify-content-center user-avatar-sm"
@@ -64,39 +61,24 @@
               </div>
               <span class="fw-bold">{{ authService.adherentActuel()?.prenom }}</span>
             </a>
-            <ul
-              class="dropdown-menu dropdown-menu-end dropdown-menu-custom"
-              aria-labelledby="memberDropdown"
-            >
+            <ul class="dropdown-menu dropdown-menu-end" [class.show]="dropdownOuvert()">
               <li>
-                <a
-                  class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2"
-                  [routerLink]="['/tableau-de-bord']"
-                >
-                  <span>📊</span> Tableau de bord
+                <a class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2" [routerLink]="['/tableau-de-bord']" (click)="dropdownOuvert.set(false)">
+                  <span>🏠</span> Tableau de bord
                 </a>
               </li>
               <li>
-                <a
-                  class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2"
-                  [routerLink]="['/tableau-de-bord/profil']"
-                >
+                <a class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2" [routerLink]="['/tableau-de-bord/profil']" (click)="dropdownOuvert.set(false)">
                   <span>👤</span> Profil
                 </a>
               </li>
               <li>
-                <a
-                  class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2"
-                  [routerLink]="['/tableau-de-bord/reservations']"
-                >
+                <a class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2" [routerLink]="['/tableau-de-bord/reservations']" (click)="dropdownOuvert.set(false)">
                   <span>🔖</span> Réservations
                 </a>
               </li>
               <li>
-                <a
-                  class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2"
-                  [routerLink]="['/tableau-de-bord/emprunts']"
-                >
+                <a class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2" [routerLink]="['/tableau-de-bord/emprunts']" (click)="dropdownOuvert.set(false)">
                   <span>📖</span> Emprunts
                 </a>
               </li>

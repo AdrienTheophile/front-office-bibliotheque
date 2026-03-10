@@ -1,5 +1,6 @@
-import { Component, inject, OnInit, computed } from '@angular/core';
+import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Auth } from '../../../core';
 import { AdherentService } from '../../../core/services/adherent';
 import { Emprunt, StatutEmprunt } from '../../../core/models';
 
@@ -10,10 +11,12 @@ import { Emprunt, StatutEmprunt } from '../../../core/models';
 })
 export class MesEmprunts implements OnInit {
   private readonly adherentService = inject(AdherentService);
+  private readonly authService = inject(Auth);
 
   emprunts = this.adherentService.emprunts;
   chargement = this.adherentService.chargement;
   erreur = this.adherentService.erreur;
+  nonAdherent = signal(false);
 
   // Emprunts filtrés par statut
   empruntsActifs = computed(() =>
@@ -29,7 +32,10 @@ export class MesEmprunts implements OnInit {
   );
 
   ngOnInit(): void {
-    // Charger les emprunts au démarrage
+    if (!this.authService.estAdherent()) {
+      this.nonAdherent.set(true);
+      return;
+    }
     this.adherentService.obtenirEmprunts().subscribe();
   }
 

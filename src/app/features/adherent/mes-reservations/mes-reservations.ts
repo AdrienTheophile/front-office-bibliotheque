@@ -1,5 +1,6 @@
-import { Component, inject, OnInit, computed } from '@angular/core';
+import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Auth } from '../../../core';
 import { AdherentService } from '../../../core/services/adherent';
 
 @Component({
@@ -9,10 +10,12 @@ import { AdherentService } from '../../../core/services/adherent';
 })
 export class MesReservations implements OnInit {
   private readonly adherentService = inject(AdherentService);
+  private readonly authService = inject(Auth);
 
   reservations = this.adherentService.reservations;
   chargement = this.adherentService.chargement;
   erreur = this.adherentService.erreur;
+  nonAdherent = signal(false);
 
   // Computed: nombre de réservations
   nombreReservations = computed(() => this.reservations().length);
@@ -21,7 +24,10 @@ export class MesReservations implements OnInit {
   peutReserver = computed(() => this.nombreReservations() < 3);
 
   ngOnInit(): void {
-    // Charger les réservations au démarrage
+    if (!this.authService.estAdherent()) {
+      this.nonAdherent.set(true);
+      return;
+    }
     this.adherentService.obtenirReservations().subscribe();
   }
 

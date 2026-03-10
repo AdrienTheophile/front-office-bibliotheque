@@ -1,8 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Adherent, Identifiants, ReponseAuth, RoleUtilisateur } from '../models';
-import { tap } from 'rxjs/operators';
+import { Adherent, Identifiants, ReponseAuth } from '../models';
+import { tap, switchMap } from 'rxjs/operators';
 
 // Configuration de l'API
 const API_URL = 'http://localhost:8008/api';
@@ -23,58 +23,43 @@ export class Auth {
   private readonly chargementSignal = signal(false);
   private readonly erreurSignal = signal<string | null>(null);
 
-  // Computed pour savoir si l'utilisateur est authentifié
+  // Computed
   readonly estAuthentifie = computed(() => this.tokenSignal() !== null);
   readonly adherentActuel = computed(() => this.adherentActuelSignal());
   readonly chargement = computed(() => this.chargementSignal());
   readonly erreur = computed(() => this.erreurSignal());
+  readonly estAdherent = computed(() => this.adherentActuelSignal()?.adherent != null);
 
   constructor() {
     this.initialiserDuStockage();
   }
 
-  /**
-   * Initialise le service depuis le localStorage
-   */
   private initialiserDuStockage(): void {
     const token = this.obtenirTokenDuStockage();
     const adherent = this.chargerAdherentDuStockage();
-
     if (token && adherent) {
       this.tokenSignal.set(token);
       this.adherentActuelSignal.set(adherent);
     }
   }
 
-  /**
-   * Récupère le token du localStorage
-   */
   private obtenirTokenDuStockage(): string | null {
     if (typeof localStorage === 'undefined') return null;
     return localStorage.getItem(this.CLE_JWT);
   }
 
-  /**
-   * Charge l'adhérent du localStorage
-   */
   private chargerAdherentDuStockage(): Adherent | null {
     if (typeof localStorage === 'undefined') return null;
-    const adherentStr = localStorage.getItem(this.CLE_ADHERENT);
-    return adherentStr ? JSON.parse(adherentStr) : null;
+    const str = localStorage.getItem(this.CLE_ADHERENT);
+    return str ? JSON.parse(str) : null;
   }
 
-  /**
-   * Sauvegarde le token dans le localStorage
-   */
   private sauvegarderTokenAuStockage(token: string): void {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(this.CLE_JWT, token);
     }
   }
 
-  /**
-   * Sauvegarde l'adhérent dans le localStorage
-   */
   private sauvegarderAdherentAuStockage(adherent: Adherent): void {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(this.CLE_ADHERENT, JSON.stringify(adherent));
@@ -82,109 +67,55 @@ export class Auth {
   }
 
   /**
-   * Authentifie un adhérent (connexion)
+   * Connexion: POST /api/login → { token }
+   * Puis: GET /api/user/me → infos utilisateur
    */
   seConnecter(identifiants: Identifiants) {
     this.chargementSignal.set(true);
     this.erreurSignal.set(null);
 
-    console.log('🔐 Tentative connexion:', identifiants.email);
-
-    return this.http.post<ReponseAuth>(`${API_URL}/auth/connexion`, identifiants).pipe(
+    return this.http.post<ReponseAuth>(`${API_URL}/login`, identifiants).pipe(
+      tap(reponse => {
+        // Stocker le token immédiatement pour que l'intercepteur le trouve
+        this.tokenSignal.set(reponse.token);
+        this.sauvegarderTokenAuStockage(reponse.token);
+      }),
+      // Enchaîner avec GET /api/user/me pour récupérer le profil
+      switchMap(() => this.http.get<Adherent>(`${API_URL}/user/me`)),
       tap({
-        next: (reponse) => {
-          console.log('✅ Connexion réussie:', reponse.utilisateur);
-          this.tokenSignal.set(reponse.token);
-          
-          // Déterminer le rôle basé sur les rôles Symfony
-          let role = RoleUtilisateur.ADHERENT;
-          if (reponse.utilisateur.roles.includes('ROLE_BIBLIO')) {
-            role = RoleUtilisateur.BIBLIOTHECAIRE;
-          } else if (reponse.utilisateur.roles.includes('ROLE_ADMIN')) {
-            role = RoleUtilisateur.RESPONSABLE;
-          }
-          
-          // Créer un objet Adherent à partir de la réponse
-          const adherent: Adherent = {
-            id: reponse.adherent?.id || 0,
-            prenom: reponse.utilisateur.prenom,
-            nom: reponse.utilisateur.nom,
-            email: reponse.utilisateur.email,
-            role: role,
-            dateAdhesion: reponse.adherent?.dateAdhesion ? new Date(reponse.adherent.dateAdhesion) : new Date(),
-            telephone: undefined,
-            adresse: undefined
-          };
-          
-          this.adherentActuelSignal.set(adherent);
-          this.sauvegarderTokenAuStockage(reponse.token);
-          this.sauvegarderAdherentAuStockage(adherent);
+        next: (utilisateur) => {
+          this.adherentActuelSignal.set(utilisateur);
+          this.sauvegarderAdherentAuStockage(utilisateur);
           this.chargementSignal.set(false);
           this.router.navigate(['/tableau-de-bord']);
         },
         error: (erreur) => {
-          console.error('❌ Erreur connexion:', erreur);
-          let messageErreur = 'Erreur d\'authentification: vérifiez vos identifiants';
+          let msg = 'Erreur d\'authentification: vérifiez vos identifiants';
           if (erreur.status === 401) {
-            messageErreur = 'Email ou mot de passe incorrect';
-          } else if (erreur.statusText === 'Unknown Error') {
-            messageErreur = 'Impossible de joindre le serveur. Vérifiez que le backend est actif sur http://localhost:8008';
+            msg = 'Email ou mot de passe incorrect';
+          } else if (erreur.status === 0) {
+            msg = 'Impossible de joindre le serveur (http://localhost:8008)';
           }
-          this.erreurSignal.set(messageErreur);
+          this.erreurSignal.set(msg);
           this.chargementSignal.set(false);
+          // Nettoyer le token si le login a échoué
+          this.tokenSignal.set(null);
+          localStorage.removeItem(this.CLE_JWT);
         }
       })
     );
   }
 
   /**
-   * Inscrit un nouvel adhérent
-   */
-  inscrire(donneesInscription: any) {
-    this.chargementSignal.set(true);
-    this.erreurSignal.set(null);
-
-    console.log('📝 Envoi inscription:', donneesInscription);
-
-    return this.http.post<any>(`${API_URL}/auth/inscription`, donneesInscription).pipe(
-      tap({
-        next: (reponse) => {
-          console.log('✅ Inscription réussie:', reponse);
-          this.chargementSignal.set(false);
-          // Naviguer vers la connexion après un court délai
-          setTimeout(() => {
-            this.router.navigate(['/connexion']);
-          }, 1500);
-        },
-        error: (erreur) => {
-          console.error('❌ Erreur inscription:', erreur);
-          let messageErreur = 'Erreur lors de l\'inscription';
-          if (erreur.error?.email) {
-            messageErreur = erreur.error.email;
-          } else if (erreur.error?.error) {
-            messageErreur = erreur.error.error;
-          } else if (erreur.statusText === 'Unknown Error') {
-            messageErreur = 'Impossible de joindre le serveur. Vérifiez que le backend est actif sur http://localhost:8008';
-          }
-          this.erreurSignal.set(messageErreur);
-          this.chargementSignal.set(false);
-        }
-      })
-    );
-  }
-
-  /**
-   * Déconnexion de l'adhérent
+   * Déconnexion
    */
   seDeconnecter(): void {
     this.tokenSignal.set(null);
     this.adherentActuelSignal.set(null);
-
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(this.CLE_JWT);
       localStorage.removeItem(this.CLE_ADHERENT);
     }
-
     this.router.navigate(['/connexion']);
   }
 
@@ -203,38 +134,29 @@ export class Auth {
   }
 
   /**
-   * Vérifie si l'adhérent a un rôle spécifique
+   * Vérifie si l'utilisateur a un rôle
    */
   aLeRole(role: string): boolean {
-    return this.adherentActuelSignal()?.role === role;
+    return this.adherentActuelSignal()?.roles?.includes(role) ?? false;
   }
 
   /**
-   * Vérifie si l'adhérent a l'un des rôles spécifiés
+   * Vérifie si l'utilisateur a l'un des rôles
    */
   aLunDesRoles(roles: string[]): boolean {
-    const adherent = this.adherentActuelSignal();
-    return adherent ? roles.includes(adherent.role) : false;
+    const user = this.adherentActuelSignal();
+    return user ? roles.some(r => user.roles?.includes(r)) : false;
   }
 
   /**
-   * Vérifie si l'adhérent est une bibliothécaire
+   * Met à jour le profil via PATCH /api/user/me
    */
-  estBibliothecaire(): boolean {
-    return this.aLeRole('bibliothecaire');
-  }
-
-  /**
-   * Vérifie si l'adhérent est responsable
-   */
-  estResponsable(): boolean {
-    return this.aLeRole('responsable');
-  }
-
-  /**
-   * Vérifie si l'adhérent est adhérent simple
-   */
-  estAdherent(): boolean {
-    return this.aLeRole('adherent');
+  mettreAJourProfil(donnees: Record<string, any>) {
+    return this.http.patch<Adherent>(`${API_URL}/user/me`, donnees).pipe(
+      tap((utilisateur) => {
+        this.adherentActuelSignal.set(utilisateur);
+        this.sauvegarderAdherentAuStockage(utilisateur);
+      })
+    );
   }
 }

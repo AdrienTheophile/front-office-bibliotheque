@@ -69,13 +69,17 @@
 }
 
 /* Dropdown Customization */
-.dropdown-menu-custom {
+.dropdown-menu-custom,
+:host ::ng-deep .dropdown-menu {
   border: none;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   padding: 0.5rem;
   margin-top: 0.5rem;
   animation: fadeIn 0.2s ease;
+  right: 0;
+  left: auto;
+  min-width: 220px;
 }
 
 @keyframes fadeIn {

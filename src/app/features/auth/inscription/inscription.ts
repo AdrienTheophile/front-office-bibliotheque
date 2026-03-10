@@ -1,8 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { Auth } from '../../../core';
+import { RouterModule, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+
+const API_URL = 'http://localhost:8008/api';
 
 @Component({
   selector: 'app-inscription',
@@ -18,7 +20,8 @@ export class Inscription implements OnInit {
   successMessage = '';
 
   private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(Auth);
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
 
   ngOnInit(): void {
     this.initializeForm();
@@ -51,22 +54,33 @@ export class Inscription implements OnInit {
     this.successMessage = '';
 
     const formData = this.inscriptionForm.value;
-    
-    this.authService.inscrire(formData).subscribe({
+
+    // Envoyer vers l'API d'inscription
+    // Le body correspond à ce que le backend attend
+    this.http.post<any>(`${API_URL}/register`, {
+      email: formData.email,
+      password: formData.motDePasse,
+      nom: formData.nom,
+      prenom: formData.prenom,
+      numTel: formData.telephone || null,
+      adressePostale: formData.adresse || null,
+    }).subscribe({
       next: () => {
         this.isLoading = false;
         this.successMessage = '✓ Compte créé avec succès ! Redirection vers la connexion...';
+        setTimeout(() => this.router.navigate(['/connexion']), 1500);
       },
       error: (erreur: any) => {
         this.isLoading = false;
-        // Récupérer le message d'erreur du backend
         let message = 'Une erreur est survenue lors de l\'inscription.';
-        if (erreur.error?.email) {
-          message = erreur.error.email;
-        } else if (erreur.error?.error) {
-          message = erreur.error.error;
+        if (erreur.status === 0) {
+          message = 'Impossible de joindre le serveur (http://localhost:8008)';
+        } else if (erreur.error?.detail) {
+          message = erreur.error.detail;
         } else if (erreur.error?.message) {
           message = erreur.error.message;
+        } else if (typeof erreur.error === 'string') {
+          message = erreur.error;
         }
         this.errorMessage = message;
       }
