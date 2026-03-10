@@ -5,8 +5,8 @@ import { Reservation } from './reservation.model';
 
 /** Enums pour les énumérations */
 export enum Langue {
-  FR = 'FR',
-  EN = 'EN'
+  Français = 'Français',
+  English = 'English'
 }
 
 /**

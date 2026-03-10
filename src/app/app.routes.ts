@@ -1,7 +1,9 @@
 import { Routes } from '@angular/router';
-// J'ai supprimé l'import de './core' car on n'utilise plus les guards
+import { Login } from './components/login/login';
 
 export const routes: Routes = [
+    { path: 'login', component: Login },
+
   {
     path: 'connexion',
     loadComponent: () => import('./features/auth/connexion/connexion').then(m => m.Connexion)

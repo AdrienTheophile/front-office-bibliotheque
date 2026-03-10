@@ -21,7 +21,12 @@ export interface Identifiants {
 }
 
 export interface ReponseAuth {
-  adherent: Adherent;
   token: string;
-  expireEn: number;
+  utilisateur: {
+    email: string;
+    nom: string;
+    prenom: string;
+    roles: string[];
+  };
+  adherent: Adherent | null;
 }

@@ -1,8 +1,16 @@
 <div class="container py-5">
   <h1 class="display-5 fw-bold mb-4">Mes Réservations</h1>
 
+  @if (chargement()) {
+    <div class="alert alert-info text-center py-5">
+      <p>Chargement de vos réservations...</p>
+    </div>
+  } @else if (erreur()) {
+    <div class="alert alert-danger">{{ erreur() }}</div>
+  }
+
   <div class="alert alert-info mb-4">
-    <strong>📊 Quota:</strong> {{ nombreReservationsActives() }} / 3 réservations utilisées
+    <strong>📊 Quota:</strong> {{ nombreReservations() }} / 3 réservations utilisées
     @if (!peutReserver()) {
       <span class="badge bg-danger">Limite atteinte</span>
     }
@@ -15,7 +23,7 @@
           <div class="card shadow-sm border-0">
             <div class="card-body">
               <h6 class="card-title fw-bold">{{ reservation.livre.titre }}</h6>
-              <p class="card-text text-muted small">par {{ reservation.livre.auteurs[0]?.nom }}</p>
+              <p class="card-text text-muted small">par {{ reservation.livre.auteurs[0]?.prenom }} {{ reservation.livre.auteurs[0]?.nom }}</p>
               
               <div class="mb-3 small">
                 <div class="d-flex justify-content-between">

@@ -12,9 +12,9 @@
   </div>
 
   <!-- Authors Grid -->
-  @if (auteursFiltres.length > 0) {
+  @if (auteursFiltres().length > 0) {
     <div class="row g-4">
-      @for (auteur of auteursFiltres; track auteur.idAut) {
+      @for (auteur of auteursFiltres(); track auteur.idAut) {
         <div class="col-md-6 col-lg-4">
           <div class="card h-100 shadow-sm border-0">
             <div class="card-body">

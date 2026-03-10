@@ -52,13 +52,24 @@ export class Inscription implements OnInit {
 
     const formData = this.inscriptionForm.value;
     
-    try {
-      this.authService.inscrire(formData);
-      this.isLoading = false;
-      this.successMessage = '✓ Compte créé avec succès ! Redirection vers la connexion...';
-    } catch (erreur: any) {
-      this.isLoading = false;
-      this.errorMessage = erreur?.message || 'Une erreur est survenue lors de l\'inscription. Veuillez réessayer.';
-    }
+    this.authService.inscrire(formData).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.successMessage = '✓ Compte créé avec succès ! Redirection vers la connexion...';
+      },
+      error: (erreur: any) => {
+        this.isLoading = false;
+        // Récupérer le message d'erreur du backend
+        let message = 'Une erreur est survenue lors de l\'inscription.';
+        if (erreur.error?.email) {
+          message = erreur.error.email;
+        } else if (erreur.error?.error) {
+          message = erreur.error.error;
+        } else if (erreur.error?.message) {
+          message = erreur.error.message;
+        }
+        this.errorMessage = message;
+      }
+    });
   }
 }

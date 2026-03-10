@@ -1,14 +1,17 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { Navbar } from './shared/navbar/navbar';
 import { Footer } from './shared/footer/footer';
 
+import { Component, inject } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from './services/auth-service';
+
+
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Navbar, Footer],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Navbar, Footer],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('front-office-bibliotheque');
+  authService = inject(AuthService);
 }

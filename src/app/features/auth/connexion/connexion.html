@@ -9,7 +9,7 @@
         
         <div class="card-body p-5">
           <!-- Alerte d'erreur -->
-          <div *ngIf="messageErreur() && !formulaire.valid" class="alert alert-danger alert-dismissible fade show" role="alert">
+          <div *ngIf="messageErreur()" class="alert alert-danger alert-dismissible fade show" role="alert">
             <strong>Erreur !</strong> {{ messageErreur() }}
             <button type="button" class="btn-close" (click)="messageErreur.set(null)" aria-label="Close"></button>
           </div>

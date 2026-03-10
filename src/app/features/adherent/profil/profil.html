@@ -3,7 +3,15 @@
     <div class="col-md-8">
       <h1 class="display-5 fw-bold mb-4">Mon Profil</h1>
 
-      @if (adherent()) {
+      @if (chargement()) {
+        <div class="alert alert-info text-center py-5">
+          <p>Chargement du profil...</p>
+        </div>
+      } @else if (erreur()) {
+        <div class="alert alert-danger">{{ erreur() }}</div>
+      }
+
+      @if (profil()) {
         <div class="card shadow-sm border-0">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0">Informations Personnelles</h5>
@@ -40,12 +48,29 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label fw-bold">Rôle</label>
+                <label class="form-label fw-bold">Date de Naissance</label>
                 <input
-                  type="text"
+                  type="date"
                   class="form-control"
-                  [value]="adherent()?.role || 'Adhérent'"
-                  disabled
+                  formControlName="dateNaissance"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Adresse Postale</label>
+                <textarea
+                  class="form-control"
+                  formControlName="adressePostale"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Téléphone</label>
+                <input
+                  type="tel"
+                  class="form-control"
+                  formControlName="telephone"
                 />
               </div>
 
@@ -67,15 +92,15 @@
             <div class="row text-center">
               <div class="col-md-4">
                 <h6 class="text-muted">Emprunts Actifs</h6>
-                <h3 class="text-primary">0</h3>
+                <h3 class="text-primary">{{ emprunts().length }}</h3>
               </div>
               <div class="col-md-4">
                 <h6 class="text-muted">Réservations</h6>
-                <h3 class="text-info">0</h3>
+                <h3 class="text-info">{{ reservations().length }}</h3>
               </div>
               <div class="col-md-4">
-                <h6 class="text-muted">Livres Retournés</h6>
-                <h3 class="text-success">0</h3>
+                <h6 class="text-muted">Adhérent depuis</h6>
+                <h6 class="text-success">{{ profil()?.dateAdhesion | date:'dd/MM/yyyy' }}</h6>
               </div>
             </div>
           </div>

@@ -23,8 +23,19 @@
             <label class="form-label fw-bold">Catégorie</label>
             <select class="form-select" [(ngModel)]="selectedCategory">
               <option value="">Toutes les catégories</option>
-              @for (cat of categories(); track cat) {
-                <option [value]="cat">{{ cat }}</option>
+              @for (cat of categories(); track cat?.idCat) {
+                <option [value]="cat?.idCat">{{ cat?.nom }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Author Filter -->
+          <div class="mb-4">
+            <label class="form-label fw-bold">Auteur</label>
+            <select class="form-select" [(ngModel)]="selectedAuteur">
+              <option value="">Tous les auteurs</option>
+              @for (aut of auteurs(); track aut?.idAut) {
+                <option [value]="aut?.idAut">{{ aut?.nom }} {{ aut?.prenom }}</option>
               }
             </select>
           </div>
@@ -34,11 +45,16 @@
             <label class="form-label fw-bold">Langue</label>
             <select class="form-select" [(ngModel)]="selectedLanguage">
               <option value="">Toutes les langues</option>
-              @for (lang of languages; track lang) {
-                <option [value]="lang">{{ lang }}</option>
+              @for (lang of languages; track lang.code) {
+                <option [value]="lang.code">{{ lang.label }}</option>
               }
             </select>
           </div>
+
+          <!-- Search Button -->
+          <button class="btn btn-primary w-100 mb-2" (click)="lancerRecherche()">
+            🔍 Rechercher
+          </button>
 
           <!-- Reset Button -->
           <button class="btn btn-outline-primary w-100" (click)="reinitialiserFiltres()">
@@ -76,7 +92,7 @@
                 <div class="card-body">
                   <h6 class="card-title fw-bold text-truncate">{{ livre.titre }}</h6>
                   <p class="card-text small text-muted">
-                    par <span class="fw-semibold">{{ livre.auteurs[0]?.nom }}</span>
+                    par <span class="fw-semibold">{{ livre.auteurs[0]?.prenom }} {{ livre.auteurs[0]?.nom }}</span>
                   </p>
 
                   <!-- Meta Info -->
@@ -93,7 +109,11 @@
 
                   <!-- Status Badge -->
                   <div class="mb-3">
-                    <span class="badge bg-secondary">Statut non disponible</span>
+                    @if (estDisponible(livre)) {
+                      <span class="badge bg-success">✓ Disponible</span>
+                    } @else {
+                      <span class="badge bg-danger">✗ Non disponible</span>
+                    }
                   </div>
                 </div>
 

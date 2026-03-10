@@ -2,10 +2,10 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Livre, PaginatedResponse, RechercheLivreParams, Langue, Categorie, Auteur } from '../models';
 import { Observable } from 'rxjs';
-import { tap, shareReplay } from 'rxjs/operators';
+import { tap, shareReplay, map } from 'rxjs/operators';
 
-// Configuration de l'API
-const API_URL = 'http://localhost:8000/api';
+// Configuration de l'API Symfony
+const API_URL = 'http://localhost:8008/api';
 
 @Injectable({
   providedIn: 'root'
@@ -72,7 +72,7 @@ export class LivreService {
   /**
    * Recherche avancée de livres
    */
-  rechercherLivres(filtres: RechercheLivreParams): Observable<PaginatedResponse<Livre>> {
+  rechercherLivres(filtres: RechercheLivreParams): Observable<Livre[]> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
@@ -86,26 +86,26 @@ export class LivreService {
     if (filtres.dateMin) params = params.set('dateMin', filtres.dateMin);
     if (filtres.dateMax) params = params.set('dateMax', filtres.dateMax);
 
-    // Pagination
-    params = params.set('page', (filtres.page || 1).toString());
-    params = params.set('limit', (filtres.limit || 10).toString());
+    console.log('🔍 Recherche avec filtres:', filtres);
+    console.log('📡 URL de recherche:', `${API_URL}/recherche`, 'params:', params.keys());
 
-    return this.http.get<PaginatedResponse<Livre>>(`${API_URL}/recherche`, { params }).pipe(
+    return this.http.get<Livre[]>(`${API_URL}/recherche`, { params }).pipe(
       tap({
-        next: (reponse) => {
-          this.livresSignal.set(reponse.items);
+        next: (livres) => {
+          console.log(`✅ Résultats trouvés: ${livres.length} livre(s)`);
+          this.livresSignal.set(livres);
           this.paginationSignal.set({
-            page: reponse.page,
-            limit: reponse.limit,
-            total: reponse.total,
-            pages: reponse.pages
+            page: 1,
+            limit: livres.length,
+            total: livres.length,
+            pages: 1
           });
           this.loadingSignal.set(false);
         },
         error: (erreur) => {
+          console.error('❌ Erreur rechercherLivres:', erreur);
           this.errorSignal.set('Erreur lors de la recherche');
           this.loadingSignal.set(false);
-          console.error('Erreur rechercherLivres:', erreur);
         }
       })
     );
@@ -142,11 +142,14 @@ export class LivreService {
   /**
    * Met à jour les filtres et déclenche une nouvelle recherche
    */
-  appliquerFiltres(title?: string, auteurId?: number, categorieId?: number, langue?: Langue): void {
+  appliquerFiltres(title?: string, auteurId?: number, categorieId?: number, langue?: string): void {
     if (title !== undefined) this.rechercheTitreSignal.set(title);
     if (auteurId !== undefined) this.filtreAuteurIdSignal.set(auteurId);
     if (categorieId !== undefined) this.filtreCategoriIdSignal.set(categorieId);
-    if (langue !== undefined) this.filtreLangueSignal.set(langue);
+    // Pour la langue, convertir en Langue ou null
+    if (langue !== undefined) {
+      this.filtreLangueSignal.set(langue && langue.length > 0 ? (langue as Langue) : null);
+    }
 
     // Déclenche la recherche avec les filtres actuels
     this.executerRechercheAvecFiltres();
@@ -164,19 +167,17 @@ export class LivreService {
     if (this.rechercheTitreSignal()) filtres.titre = this.rechercheTitreSignal();
     if (this.filtreAuteurIdSignal()) filtres.auteur = this.filtreAuteurIdSignal()!;
     if (this.filtreCategoriIdSignal()) filtres.categorie = this.filtreCategoriIdSignal()!;
-    if (this.filtreLangueSignal()) filtres.langue = this.filtreLangueSignal() ?? undefined;
+    if (this.filtreLangueSignal()) filtres.langue = this.filtreLangueSignal()!;
 
-    // Si au moins un filtre est actif, utiliser la recherche avancée
-    if (
-      filtres.titre ||
-      filtres.auteur ||
-      filtres.categorie ||
-      filtres.langue
-    ) {
+    // S'il y a au moins un filtre actif, utiliser la recherche avancée
+    const hasActiveFilters = !!(filtres.titre || filtres.auteur || filtres.categorie || filtres.langue);
+    
+    if (hasActiveFilters) {
+      // Recherche avec filtres
       this.rechercherLivres(filtres).subscribe();
     } else {
-      // Sinon, charger tous les livres
-      this.chargerLivres(filtres.page || 1, filtres.limit || 10).subscribe();
+      // Pas de filtre: charger tous les livres
+      this.chargerLivres(1, 10).subscribe();
     }
   }
 

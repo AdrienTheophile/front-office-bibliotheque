@@ -23,7 +23,7 @@ export class Connexion {
   constructor() {
     this.formulaire = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      motDePasse: ['', [Validators.required, Validators.minLength(6)]]
+      motDePasse: ['', [Validators.required]]
     });
   }
 
@@ -41,12 +41,15 @@ export class Connexion {
     this.authService.seConnecter({
       email,
       motDePasse
+    }).subscribe({
+      next: () => {
+        this.enChargement.set(false);
+      },
+      error: (erreur) => {
+        this.enChargement.set(false);
+        this.messageErreur.set(this.authService.erreur());
+      }
     });
-
-    // Simulé: après 1 seconde, on arrête le chargement
-    setTimeout(() => {
-      this.enChargement.set(false);
-    }, 1000);
   }
 
   obtenirMessageErreur(nomChamp: string): string | null {
@@ -56,10 +59,14 @@ export class Connexion {
     }
 
     if (controle.errors['required']) {
-      return `${nomChamp} est requis`;
+      const labels: { [key: string]: string } = {
+        email: 'Email',
+        motDePasse: 'Mot de passe'
+      };
+      return `${labels[nomChamp] || nomChamp} est requis`;
     }
     if (nomChamp === 'email' && controle.errors['email']) {
-      return 'Email invalide';
+      return 'Adresse email invalide';
     }
     if (nomChamp === 'motDePasse' && controle.errors['minlength']) {
       return 'Le mot de passe doit contenir au moins 6 caractères';

@@ -5,7 +5,7 @@
 // URL de base de l'API
 export const API_CONFIG = {
   // URL de base (remplacez par votre URL réelle en production)
-  BASE_URL: 'http://localhost:8000/api',
+  BASE_URL: 'http://localhost:8008/api',
 
   // Routes des livres
   LIVRES: '/livres',

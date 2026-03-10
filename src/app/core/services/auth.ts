@@ -1,11 +1,11 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Adherent, Identifiants, ReponseAuth } from '../models';
+import { Adherent, Identifiants, ReponseAuth, RoleUtilisateur } from '../models';
 import { tap } from 'rxjs/operators';
 
 // Configuration de l'API
-const API_URL = 'http://localhost:8000/api';
+const API_URL = 'http://localhost:8008/api';
 
 @Injectable({
   providedIn: 'root'
@@ -88,20 +88,50 @@ export class Auth {
     this.chargementSignal.set(true);
     this.erreurSignal.set(null);
 
+    console.log('🔐 Tentative connexion:', identifiants.email);
+
     return this.http.post<ReponseAuth>(`${API_URL}/auth/connexion`, identifiants).pipe(
       tap({
         next: (reponse) => {
+          console.log('✅ Connexion réussie:', reponse.utilisateur);
           this.tokenSignal.set(reponse.token);
-          this.adherentActuelSignal.set(reponse.adherent);
+          
+          // Déterminer le rôle basé sur les rôles Symfony
+          let role = RoleUtilisateur.ADHERENT;
+          if (reponse.utilisateur.roles.includes('ROLE_BIBLIO')) {
+            role = RoleUtilisateur.BIBLIOTHECAIRE;
+          } else if (reponse.utilisateur.roles.includes('ROLE_ADMIN')) {
+            role = RoleUtilisateur.RESPONSABLE;
+          }
+          
+          // Créer un objet Adherent à partir de la réponse
+          const adherent: Adherent = {
+            id: reponse.adherent?.id || 0,
+            prenom: reponse.utilisateur.prenom,
+            nom: reponse.utilisateur.nom,
+            email: reponse.utilisateur.email,
+            role: role,
+            dateAdhesion: reponse.adherent?.dateAdhesion ? new Date(reponse.adherent.dateAdhesion) : new Date(),
+            telephone: undefined,
+            adresse: undefined
+          };
+          
+          this.adherentActuelSignal.set(adherent);
           this.sauvegarderTokenAuStockage(reponse.token);
-          this.sauvegarderAdherentAuStockage(reponse.adherent);
+          this.sauvegarderAdherentAuStockage(adherent);
           this.chargementSignal.set(false);
           this.router.navigate(['/tableau-de-bord']);
         },
         error: (erreur) => {
-          this.erreurSignal.set('Erreur d\'authentification: vérifiez vos identifiants');
+          console.error('❌ Erreur connexion:', erreur);
+          let messageErreur = 'Erreur d\'authentification: vérifiez vos identifiants';
+          if (erreur.status === 401) {
+            messageErreur = 'Email ou mot de passe incorrect';
+          } else if (erreur.statusText === 'Unknown Error') {
+            messageErreur = 'Impossible de joindre le serveur. Vérifiez que le backend est actif sur http://localhost:8008';
+          }
+          this.erreurSignal.set(messageErreur);
           this.chargementSignal.set(false);
-          console.error('Erreur d\'authentification:', erreur);
         }
       })
     );
@@ -114,16 +144,30 @@ export class Auth {
     this.chargementSignal.set(true);
     this.erreurSignal.set(null);
 
-    return this.http.post<Adherent>(`${API_URL}/auth/inscription`, donneesInscription).pipe(
+    console.log('📝 Envoi inscription:', donneesInscription);
+
+    return this.http.post<any>(`${API_URL}/auth/inscription`, donneesInscription).pipe(
       tap({
-        next: (adherent) => {
+        next: (reponse) => {
+          console.log('✅ Inscription réussie:', reponse);
           this.chargementSignal.set(false);
-          this.router.navigate(['/connexion']);
+          // Naviguer vers la connexion après un court délai
+          setTimeout(() => {
+            this.router.navigate(['/connexion']);
+          }, 1500);
         },
         error: (erreur) => {
-          this.erreurSignal.set('Erreur d\'inscription');
+          console.error('❌ Erreur inscription:', erreur);
+          let messageErreur = 'Erreur lors de l\'inscription';
+          if (erreur.error?.email) {
+            messageErreur = erreur.error.email;
+          } else if (erreur.error?.error) {
+            messageErreur = erreur.error.error;
+          } else if (erreur.statusText === 'Unknown Error') {
+            messageErreur = 'Impossible de joindre le serveur. Vérifiez que le backend est actif sur http://localhost:8008';
+          }
+          this.erreurSignal.set(messageErreur);
           this.chargementSignal.set(false);
-          console.error('Erreur d\'inscription:', erreur);
         }
       })
     );

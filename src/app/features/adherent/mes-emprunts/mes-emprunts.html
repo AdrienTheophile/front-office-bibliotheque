@@ -1,6 +1,14 @@
 <div class="container py-5">
   <h1 class="display-5 fw-bold mb-4">Mes Emprunts</h1>
 
+  @if (chargement()) {
+    <div class="alert alert-info text-center py-5">
+      <p>Chargement de vos emprunts...</p>
+    </div>
+  } @else if (erreur()) {
+    <div class="alert alert-danger">{{ erreur() }}</div>
+  }
+
   <!-- Active Borrows -->
   <h3 class="mt-5 mb-3">📚 Emprunts Actifs</h3>
   @if (empruntsActifs().length > 0) {
@@ -10,7 +18,7 @@
           <div class="card shadow-sm border-0">
             <div class="card-body">
               <h6 class="card-title fw-bold">{{ emprunt.livre.titre }}</h6>
-              <p class="card-text text-muted small">par {{ emprunt.livre.auteurs[0]?.nom }}</p>
+              <p class="card-text text-muted small">par {{ emprunt.livre.auteurs[0]?.prenom }} {{ emprunt.livre.auteurs[0]?.nom }}</p>
               
               <div class="mb-3 small">
                 <div class="d-flex justify-content-between mb-1">
@@ -23,7 +31,7 @@
                 </div>
                 <div class="d-flex justify-content-between">
                   <span>Jours restants:</span>
-                  <span class="badge bg-success">{{ obtenirJoursAvantLimite(emprunt.idEmp) }} jours</span>
+                  <span class="badge bg-success">{{ obtenirJoursAvantLimite(emprunt) }} jours</span>
                 </div>
               </div>
 
@@ -50,7 +58,7 @@
           <div class="card shadow-sm border border-danger">
             <div class="card-body">
               <h6 class="card-title fw-bold text-danger">{{ emprunt.livre.titre }}</h6>
-              <p class="card-text text-muted small">par {{ emprunt.livre.auteurs[0]?.nom }}</p>
+              <p class="card-text text-muted small">par {{ emprunt.livre.auteurs[0]?.prenom }} {{ emprunt.livre.auteurs[0]?.nom }}</p>
               
               <div class="mb-3 small alert alert-danger py-2 px-2">
                 <span class="badge bg-danger">RETARD !</span> Veuillez retourner ce livre au plus tôt
@@ -68,7 +76,31 @@
 
   <!-- Returned Borrows -->
   <h3 class="mt-5 mb-3">✓ Historique (Retournés)</h3>
-  @if (empruntsActifs().length === 0 && empruntsEnRetard().length === 0) {
+  @if (empruntsRetournes().length > 0) {
+    <div class="row g-4">
+      @for (emprunt of empruntsRetournes(); track emprunt.idEmp) {
+        <div class="col-md-6 col-lg-4">
+          <div class="card shadow-sm border-0 opacity-75">
+            <div class="card-body">
+              <h6 class="card-title fw-bold">{{ emprunt.livre.titre }}</h6>
+              <p class="card-text text-muted small">par {{ emprunt.livre.auteurs[0]?.prenom }} {{ emprunt.livre.auteurs[0]?.nom }}</p>
+              
+              <div class="mb-3 small">
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Emprunté:</span>
+                  <span>{{ emprunt.dateEmprunt | date: 'short' }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span>Retourné:</span>
+                  <span>{{ emprunt.dateRetourReel | date: 'short' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
     <div class="alert alert-info text-center py-4">
       Aucun historique d'emprunt
     </div>

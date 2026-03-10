@@ -5,7 +5,7 @@ import { Auth } from './auth';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = 'http://localhost:8008/api';
 const MAX_RESERVATIONS_PAR_ADHERENT = 3;
 
 @Injectable({
