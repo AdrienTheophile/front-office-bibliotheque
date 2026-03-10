@@ -1,14 +1,21 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Livre, PaginatedResponse, RechercheLivreParams, Langue, Categorie, Auteur } from '../models';
+import {
+  Livre,
+  PaginatedResponse,
+  RechercheLivreParams,
+  Langue,
+  Categorie,
+  Auteur,
+} from '../models';
 import { Observable } from 'rxjs';
 import { tap, shareReplay, map } from 'rxjs/operators';
 
 // Configuration de l'API Symfony
-const API_URL = 'http://localhost:8008/api';
+const API_URL = 'https://localhost:8008/api';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LivreService {
   private readonly http = inject(HttpClient);
@@ -44,9 +51,7 @@ export class LivreService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('limit', limit.toString());
+    let params = new HttpParams().set('page', page.toString()).set('limit', limit.toString());
 
     return this.http.get<PaginatedResponse<Livre>>(`${API_URL}/livres`, { params }).pipe(
       tap({
@@ -56,7 +61,7 @@ export class LivreService {
             page: reponse.page,
             limit: reponse.limit,
             total: reponse.total,
-            pages: reponse.pages
+            pages: reponse.pages,
           });
           this.loadingSignal.set(false);
         },
@@ -64,8 +69,8 @@ export class LivreService {
           this.errorSignal.set('Erreur lors du chargement des livres');
           this.loadingSignal.set(false);
           console.error('Erreur chargerLivres:', erreur);
-        }
-      })
+        },
+      }),
     );
   }
 
@@ -98,7 +103,7 @@ export class LivreService {
             page: 1,
             limit: livres.length,
             total: livres.length,
-            pages: 1
+            pages: 1,
           });
           this.loadingSignal.set(false);
         },
@@ -106,8 +111,8 @@ export class LivreService {
           console.error('❌ Erreur rechercherLivres:', erreur);
           this.errorSignal.set('Erreur lors de la recherche');
           this.loadingSignal.set(false);
-        }
-      })
+        },
+      }),
     );
   }
 
@@ -125,8 +130,8 @@ export class LivreService {
           this.errorSignal.set('Erreur lors de la récupération du livre');
           this.loadingSignal.set(false);
           console.error('Erreur obtenirLivreParId:', erreur);
-        }
-      })
+        },
+      }),
     );
   }
 
@@ -161,7 +166,7 @@ export class LivreService {
   private executerRechercheAvecFiltres(): void {
     const filtres: RechercheLivreParams = {
       page: this.paginationSignal().page,
-      limit: this.paginationSignal().limit
+      limit: this.paginationSignal().limit,
     };
 
     if (this.rechercheTitreSignal()) filtres.titre = this.rechercheTitreSignal();
@@ -170,8 +175,13 @@ export class LivreService {
     if (this.filtreLangueSignal()) filtres.langue = this.filtreLangueSignal()!;
 
     // S'il y a au moins un filtre actif, utiliser la recherche avancée
-    const hasActiveFilters = !!(filtres.titre || filtres.auteur || filtres.categorie || filtres.langue);
-    
+    const hasActiveFilters = !!(
+      filtres.titre ||
+      filtres.auteur ||
+      filtres.categorie ||
+      filtres.langue
+    );
+
     if (hasActiveFilters) {
       // Recherche avec filtres
       this.rechercherLivres(filtres).subscribe();
@@ -201,7 +211,7 @@ export class LivreService {
       titre: this.rechercheTitreSignal(),
       auteur: this.filtreAuteurIdSignal(),
       categorie: this.filtreCategoriIdSignal(),
-      langue: this.filtreLangueSignal()
+      langue: this.filtreLangueSignal(),
     };
   }
 
@@ -216,8 +226,8 @@ export class LivreService {
           error: (erreur) => {
             console.error('Erreur obtenirAuteurs:', erreur);
             this.auteurCache$ = null; // Réinitialise le cache en cas d'erreur
-          }
-        })
+          },
+        }),
       );
     }
     return this.auteurCache$;
@@ -241,8 +251,8 @@ export class LivreService {
           error: (erreur) => {
             console.error('Erreur obtenirCategories:', erreur);
             this.categorieCache$ = null; // Réinitialise le cache en cas d'erreur
-          }
-        })
+          },
+        }),
       );
     }
     return this.categorieCache$;

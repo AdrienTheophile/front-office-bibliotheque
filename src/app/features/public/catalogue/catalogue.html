@@ -1,136 +1,247 @@
-<div class="container-fluid py-5">
-  <div class="row">
-    <!-- Sidebar Filtrages -->
-    <div class="col-lg-3 mb-4">
-      <div class="card sticky-top shadow-sm border-0">
-        <div class="card-header bg-primary text-white border-0">
-          <h5 class="mb-0">🔍 Filtres</h5>
-        </div>
-        <div class="card-body">
-          <!-- Search -->
-          <div class="mb-4">
-            <label class="form-label fw-bold">Recherche</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Titre ou auteur..."
-              [(ngModel)]="searchTerm"
-            />
-          </div>
-
-          <!-- Category Filter -->
-          <div class="mb-4">
-            <label class="form-label fw-bold">Catégorie</label>
-            <select class="form-select" [(ngModel)]="selectedCategory">
-              <option value="">Toutes les catégories</option>
-              @for (cat of categories(); track cat?.idCat) {
-                <option [value]="cat?.idCat">{{ cat?.nom }}</option>
-              }
-            </select>
-          </div>
-
-          <!-- Author Filter -->
-          <div class="mb-4">
-            <label class="form-label fw-bold">Auteur</label>
-            <select class="form-select" [(ngModel)]="selectedAuteur">
-              <option value="">Tous les auteurs</option>
-              @for (aut of auteurs(); track aut?.idAut) {
-                <option [value]="aut?.idAut">{{ aut?.nom }} {{ aut?.prenom }}</option>
-              }
-            </select>
-          </div>
-
-          <!-- Language Filter -->
-          <div class="mb-4">
-            <label class="form-label fw-bold">Langue</label>
-            <select class="form-select" [(ngModel)]="selectedLanguage">
-              <option value="">Toutes les langues</option>
-              @for (lang of languages; track lang.code) {
-                <option [value]="lang.code">{{ lang.label }}</option>
-              }
-            </select>
-          </div>
-
-          <!-- Search Button -->
-          <button class="btn btn-primary w-100 mb-2" (click)="lancerRecherche()">
-            🔍 Rechercher
-          </button>
-
-          <!-- Reset Button -->
-          <button class="btn btn-outline-primary w-100" (click)="reinitialiserFiltres()">
-            ↺ Réinitialiser filtres
-          </button>
-        </div>
-      </div>
+<div class="container-fluid pt-5 pb-0 px-lg-5 min-vh-100">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 pb-2">
+    <div class="mb-3 mb-md-0">
+      <h2 class="display-5 fw-bold mb-1 text-dark">Catalogue</h2>
+      <p class="text-secondary mb-0 fs-5">
+        Explorez notre collection de
+        <span class="fw-bold text-primary">{{ pagination().total }}</span> livre(s)
+      </p>
     </div>
 
-    <!-- Main Content -->
-    <div class="col-lg-9">
-      <!-- Header -->
-      <div class="mb-4">
-        <h2 class="display-6 fw-bold mb-2">Catalogue des Livres</h2>
-        <p class="text-muted">
-          {{ livresFiltres().length }} livre(s) trouvé(s)
-        </p>
-      </div>
+    <button
+      class="btn btn-dark d-flex align-items-center gap-2 rounded-pill px-4 py-2 fw-semibold shadow-sm filter-btn transition-base"
+      (click)="toggleFilters()"
+    >
+      <span class="fs-5">🎛</span>
+      {{ isFiltersOpen() ? 'Masquer les filtres' : 'Afficher les filtres' }}
+    </button>
+  </div>
 
-      <!-- Books Grid -->
+  <div class="row layout-transition">
+    @if (isFiltersOpen()) {
+      <div class="col-lg-3 mb-4 filter-sidebar">
+        <div class="card shadow-sm border-0 rounded-4 sticky-top style-filters">
+          <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+            <h5 class="mb-0 fw-bold text-dark">Affiner la recherche</h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="mb-4">
+              <label class="form-label text-muted small text-uppercase fw-bold tracing-wide"
+                >Recherche</label
+              >
+              <input
+                type="text"
+                class="form-control form-control-lg bg-light border-0 rounded-3 shadow-none"
+                placeholder="Titre ou auteur..."
+                [(ngModel)]="searchTerm"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label
+                class="form-label text-muted small text-uppercase fw-bold tracing-wide"
+                for="categorySelect"
+                >Catégorie</label
+              >
+              <select
+                id="categorySelect"
+                class="form-select form-select-lg bg-light border-0 rounded-3 shadow-none text-dark"
+                [(ngModel)]="selectedCategory"
+              >
+                <option value="">Toutes les catégories</option>
+                @for (cat of categories(); track cat?.idCat) {
+                  <option [value]="cat?.idCat">{{ cat?.nom }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="mb-4">
+              <label
+                class="form-label text-muted small text-uppercase fw-bold tracing-wide"
+                for="authorSelect"
+                >Auteur</label
+              >
+              <select
+                id="authorSelect"
+                class="form-select form-select-lg bg-light border-0 rounded-3 shadow-none text-dark"
+                [(ngModel)]="selectedAuteur"
+              >
+                <option value="">Tous les auteurs</option>
+                @for (aut of auteurs(); track aut?.idAut) {
+                  <option [value]="aut?.idAut">{{ aut?.nom }} {{ aut?.prenom }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="mb-4">
+              <label
+                class="form-label text-muted small text-uppercase fw-bold tracing-wide"
+                for="languageSelect"
+                >Langue</label
+              >
+              <select
+                id="languageSelect"
+                class="form-select form-select-lg bg-light border-0 rounded-3 shadow-none text-dark"
+                [(ngModel)]="selectedLanguage"
+              >
+                <option value="">Toutes les langues</option>
+                @for (lang of languages; track lang.code) {
+                  <option [value]="lang.code">{{ lang.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="d-flex flex-column gap-2 mt-5">
+              <button
+                class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm"
+                (click)="lancerRecherche()"
+              >
+                Appliquer les filtres
+              </button>
+              <button
+                class="btn btn-light btn-lg rounded-pill fw-semibold text-muted bg-transparent border-0"
+                (click)="reinitialiserFiltres()"
+              >
+                Réinitialiser
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Contenu principal -->
+    <div [class]="isFiltersOpen() ? 'col-lg-9' : 'col-lg-12'">
       @if (livresFiltres().length > 0) {
         <div class="row g-4">
           @for (livre of livresFiltres(); track livre.idLivre) {
-            <div class="col-md-6 col-lg-4">
-              <div class="card h-100 book-card shadow-sm border-0">
-                <!-- Book Cover -->
-                <div class="book-cover bg-light d-flex align-items-center justify-content-center">
+            <div
+              [class]="
+                isFiltersOpen()
+                  ? 'col-12 col-md-6 col-lg-4 col-xl-3'
+                  : 'col-12 col-md-4 col-lg-1-5 col-xl-1-5'
+              "
+            >
+              <div
+                class="card h-100 book-card shadow-sm border-0 rounded-4 overflow-hidden bg-white text-decoration-none"
+              >
+                <div class="position-absolute top-0 end-0 m-3 z-1">
+                  @if (estDisponible(livre)) {
+                    <span
+                      class="badge bg-success text-white border border-success rounded-pill px-3 py-2 fw-semibold shadow-sm"
+                      >Disponible</span
+                    >
+                  } @else {
+                    <span
+                      class="badge bg-danger text-white border border-danger rounded-pill px-3 py-2 fw-semibold shadow-sm"
+                      >Emprunté</span
+                    >
+                  }
+                </div>
+
+                <div class="book-cover d-flex align-items-center justify-content-center">
                   <div class="text-center">
-                    <div class="display-1 mb-2">📖</div>
-                    <small class="text-muted">{{ livre.categories[0]?.nom }}</small>
+                    <div
+                      class="display-3 mb-2 shadow-sm d-inline-block px-3 py-2 rounded-4 bg-white bg-opacity-75"
+                    >
+                      📖
+                    </div>
                   </div>
                 </div>
 
-                <!-- Card Body -->
-                <div class="card-body">
-                  <h6 class="card-title fw-bold text-truncate">{{ livre.titre }}</h6>
-                  <p class="card-text small text-muted">
-                    par <span class="fw-semibold">{{ livre.auteurs[0]?.prenom }} {{ livre.auteurs[0]?.nom }}</span>
+                <div class="card-body p-4 d-flex flex-column">
+                  <div class="mb-2">
+                    <span class="text-primary small fw-bold text-uppercase tracing-wider">{{
+                      livre.categories[0]?.nom || 'GÉNÉRAL'
+                    }}</span>
+                  </div>
+
+                  <h5 class="card-title fw-bold text-dark mb-1 line-clamp-2">{{ livre.titre }}</h5>
+                  <p class="card-text text-secondary small mb-4">
+                    {{ livre.auteurs[0]?.prenom }} {{ livre.auteurs[0]?.nom }}
                   </p>
 
-                  <!-- Meta Info -->
-                  <div class="bg-light p-2 rounded small mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                      <span>📅</span>
-                      <span>{{ livre.dateSortie | date:'yyyy' }}</span>
+                  <div class="mt-auto">
+                    <div
+                      class="d-flex align-items-center justify-content-between text-muted small mb-3"
+                    >
+                      <div class="d-flex align-items-center gap-1">
+                        <span class="fs-6">📅</span>
+                        <span>{{ livre.dateSortie | date: 'yyyy' }}</span>
+                      </div>
+                      <div class="d-flex align-items-center gap-1">
+                        <span class="fs-6">🌍</span>
+                        <span>{{ livre.langue }}</span>
+                      </div>
                     </div>
-                    <div class="d-flex justify-content-between mb-1">
-                      <span>🌍</span>
-                      <span>{{ livre.langue }}</span>
-                    </div>
-                  </div>
 
-                  <!-- Status Badge -->
-                  <div class="mb-3">
-                    @if (estDisponible(livre)) {
-                      <span class="badge bg-success">✓ Disponible</span>
-                    } @else {
-                      <span class="badge bg-danger">✗ Non disponible</span>
-                    }
+                    <a
+                      [routerLink]="['/livres', livre.idLivre]"
+                      class="btn btn-outline-primary w-100 rounded-pill fw-semibold btn-details hover-primary"
+                    >
+                      Voir les détails →
+                    </a>
                   </div>
-                </div>
-
-                <!-- Card Footer -->
-                <div class="card-footer bg-white border-top">
-                  <a [routerLink]="['/livres', livre.idLivre]" class="btn btn-sm btn-primary w-100">
-                    Voir détails
-                  </a>
                 </div>
               </div>
             </div>
           }
         </div>
+
+        @if (pagination().pages > 1) {
+          <div class="d-flex justify-content-center mt-5">
+            <nav aria-label="Navigation des pages du catalogue">
+              <ul class="pagination pagination-lg">
+                <li class="page-item" [class.disabled]="pagination().page === 1">
+                  <button
+                    class="page-link shadow-none"
+                    (click)="allerPage(pagination().page - 1)"
+                    aria-label="Page précédente"
+                  >
+                    <span aria-hidden="true">&laquo;</span>
+                  </button>
+                </li>
+
+                @for (p of [].constructor(pagination().pages); track $index) {
+                  <li class="page-item" [class.active]="pagination().page === $index + 1">
+                    <button class="page-link shadow-none" (click)="allerPage($index + 1)">
+                      {{ $index + 1 }}
+                    </button>
+                  </li>
+                }
+
+                <li class="page-item" [class.disabled]="pagination().page === pagination().pages">
+                  <button
+                    class="page-link shadow-none"
+                    (click)="allerPage(pagination().page + 1)"
+                    aria-label="Page suivante"
+                  >
+                    <span aria-hidden="true">&raquo;</span>
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div class="text-center text-muted small mt-2">
+            Page {{ pagination().page }} sur {{ pagination().pages }} ({{ pagination().total }}
+            livres au total)
+          </div>
+        }
       } @else {
-        <div class="alert alert-info text-center py-5">
-          <h5>😔 Aucun livre trouvé</h5>
-          <p class="mb-0">Essayez de modifier vos filtres</p>
+        <div
+          class="d-flex flex-column align-items-center justify-content-center py-5 mt-5 bg-white rounded-4 shadow-sm border-0 text-center mx-auto empty-state-container"
+        >
+          <div class="display-1 text-muted opacity-25 mb-4">📚</div>
+          <h4 class="fw-bold text-dark">Aucun livre ne correspond à votre recherche</h4>
+          <p class="text-secondary mb-4">
+            Essayez de modifier vos critères de filtrage ou réinitialisez la recherche.
+          </p>
+          <button
+            class="btn btn-primary rounded-pill px-4 py-2 shadow-sm"
+            (click)="reinitialiserFiltres()"
+          >
+            Réinitialiser les filtres
+          </button>
         </div>
       }
     </div>

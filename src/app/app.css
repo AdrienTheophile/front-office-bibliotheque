@@ -5,11 +5,6 @@
   min-height: 100vh;
 }
 
-app-navbar {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
 
 app-footer {
   margin-top: auto;

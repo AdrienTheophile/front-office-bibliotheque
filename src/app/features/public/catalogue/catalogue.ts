@@ -20,28 +20,29 @@ export class Catalogue {
   selectedAuteur = signal<number | null>(null);
   selectedCategory = signal<number | null>(null);
   selectedLanguage = signal<string>(''); // Changé de Langue | null à string
+  isFiltersOpen = signal(false); // État du panneau de filtres
 
   // Accès aux données du service
   livresFiltres = this.livreService.livresFiltres;
   pagination = this.livreService.pagination;
   chargement = this.livreService.chargement;
   erreur = this.livreService.erreur;
-  
+
   // Convertir les Observables en Signals
   categories = toSignal(this.livreService.obtenirCategories());
   auteurs = toSignal(this.livreService.obtenirAuteurs());
 
   languages = [
     { code: 'Français', label: 'Français' },
-    { code: 'English', label: 'Anglais' }
+    { code: 'English', label: 'Anglais' },
   ];
 
   // Fonction pour vérifier la disponibilité
   estDisponible = estDisponible;
 
   constructor() {
-    // Charger les livres au démarrage
-    this.livreService.chargerLivres(1, 10).subscribe();
+    // Charger les livres au démarrage (limite augmentée à 20 pour un meilleur rendu de grille)
+    this.livreService.chargerLivres(1, 20).subscribe();
   }
 
   /**
@@ -52,14 +53,14 @@ export class Catalogue {
       searchTerm: this.searchTerm(),
       selectedAuteur: this.selectedAuteur(),
       selectedCategory: this.selectedCategory(),
-      selectedLanguage: this.selectedLanguage()
+      selectedLanguage: this.selectedLanguage(),
     });
-    
+
     this.livreService.appliquerFiltres(
       this.searchTerm() || undefined,
       this.selectedAuteur() || undefined,
       this.selectedCategory() || undefined,
-      this.selectedLanguage() || undefined  // Passe la string directement ('' ou 'FR' ou 'EN')
+      this.selectedLanguage() || undefined, // Passe la string directement ('' ou 'FR' ou 'EN')
     );
   }
 
@@ -75,9 +76,16 @@ export class Catalogue {
   }
 
   /**
+   * Alterne l'affichage des filtres
+   */
+  toggleFilters(): void {
+    this.isFiltersOpen.update((v) => !v);
+  }
+
+  /**
    * Va à une page spécifique
    */
   allerPage(page: number): void {
-    this.livreService.chargerLivres(page, 10).subscribe();
+    this.livreService.chargerLivres(page, 20).subscribe();
   }
 }

@@ -1,8 +1,14 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <div class="container-fluid">
-    <a class="navbar-brand" [routerLink]="['/']">📚 Bibliothèque nationale internationale de Peyragudes</a>
+<nav class="navbar navbar-expand-lg custom-navbar-mint shadow-sm">
+  <div class="container-fluid px-4 position-relative">
+    <!-- Brand -->
+    <a class="navbar-brand navbar-brand-custom d-flex align-items-center" [routerLink]="['/']">
+      <span class="brand-icon">📚</span>
+      <span class="d-none d-sm-inline">Peyragudes</span>
+    </a>
+
+    <!-- Mobile Toggle -->
     <button
-      class="navbar-toggler"
+      class="navbar-toggler border-0 shadow-none text-white"
       type="button"
       data-bs-toggle="collapse"
       data-bs-target="#navbarNav"
@@ -12,53 +18,97 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
+
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
+      <!-- Centered Navigation Links -->
+      <ul class="navbar-nav navbar-nav-centered">
         <!-- Liens publics -->
         <li class="nav-item">
-          <a class="nav-link" [routerLink]="['/']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <a
+            class="nav-link nav-link-custom"
+            [routerLink]="['/']"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
             Accueil
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" [routerLink]="['/catalogue']" routerLinkActive="active">
+          <a
+            class="nav-link nav-link-custom"
+            [routerLink]="['/catalogue']"
+            routerLinkActive="active"
+          >
             Catalogue
           </a>
         </li>
+      </ul>
 
+      <!-- Right Aligned User Actions -->
+      <ul class="navbar-nav ms-auto auth-buttons">
         <!-- Liens adhérent (authentifié) -->
         @if (authService.estAuthentifie()) {
           <li class="nav-item dropdown">
             <a
-              class="nav-link dropdown-toggle"
+              class="nav-link nav-link-custom dropdown-toggle d-flex align-items-center gap-2"
               href="#"
               id="memberDropdown"
               role="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              {{ authService.adherentActuel()?.prenom }}
+              <div
+                class="rounded-circle d-flex align-items-center justify-content-center user-avatar-sm"
+              >
+                {{ authService.adherentActuel()?.prenom?.[0] || 'U' }}
+              </div>
+              <span class="fw-bold">{{ authService.adherentActuel()?.prenom }}</span>
             </a>
-            <ul class="dropdown-menu" aria-labelledby="memberDropdown">
+            <ul
+              class="dropdown-menu dropdown-menu-end dropdown-menu-custom"
+              aria-labelledby="memberDropdown"
+            >
               <li>
-                <a class="dropdown-item" [routerLink]="['/tableau-de-bord']">Tableau de bord</a>
-              </li>
-              <li>
-                <a class="dropdown-item" [routerLink]="['/tableau-de-bord/profil']">Profil</a>
-              </li>
-              <li>
-                <a class="dropdown-item" [routerLink]="['/tableau-de-bord/reservations']">
-                  Réservations
+                <a
+                  class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2"
+                  [routerLink]="['/tableau-de-bord']"
+                >
+                  <span>📊</span> Tableau de bord
                 </a>
               </li>
               <li>
-                <a class="dropdown-item" [routerLink]="['/tableau-de-bord/emprunts']">
-                  Emprunts
+                <a
+                  class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2"
+                  [routerLink]="['/tableau-de-bord/profil']"
+                >
+                  <span>👤</span> Profil
                 </a>
               </li>
-              <li><hr class="dropdown-divider" /></li>
               <li>
-                <a class="dropdown-item" href="javascript:;" (click)="seDeconnecter()">Déconnexion</a>
+                <a
+                  class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2"
+                  [routerLink]="['/tableau-de-bord/reservations']"
+                >
+                  <span>🔖</span> Réservations
+                </a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2"
+                  [routerLink]="['/tableau-de-bord/emprunts']"
+                >
+                  <span>📖</span> Emprunts
+                </a>
+              </li>
+              <li><hr class="dropdown-divider my-2" /></li>
+              <li>
+                <a
+                  class="dropdown-item dropdown-item-custom text-danger d-flex align-items-center gap-2"
+                  href="javascript:;"
+                  (click)="seDeconnecter()"
+                >
+                  <span>🚪</span> Déconnexion
+                </a>
               </li>
             </ul>
           </li>
@@ -67,7 +117,11 @@
         <!-- Liens de connexion -->
         @if (!authService.estAuthentifie()) {
           <li class="nav-item">
-            <a class="nav-link" [routerLink]="['/connexion']" routerLinkActive="active">
+            <a
+              class="nav-link nav-link-custom nav-link-login"
+              [routerLink]="['/connexion']"
+              routerLinkActive="active"
+            >
               Connexion
             </a>
           </li>
