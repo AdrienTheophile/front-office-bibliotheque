@@ -8,6 +8,7 @@ import { Livre, estDisponible } from '../../../core/models';
   selector: 'app-detail-livre',
   imports: [CommonModule, RouterLink],
   templateUrl: './detail-livre.html',
+  styleUrl: './detail-livre.css',
 })
 export class DetailLivre implements OnInit {
   private readonly livreService = inject(LivreService);
@@ -23,7 +24,7 @@ export class DetailLivre implements OnInit {
   estAdherent = this.authService.estAdherent;
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe((params) => {
       const id = +params['id'];
       if (id) {
         this.chargement.set(true);
@@ -37,7 +38,7 @@ export class DetailLivre implements OnInit {
             console.error('Erreur lors du chargement du livre:', err);
             this.erreur.set('Impossible de charger le livre');
             this.chargement.set(false);
-          }
+          },
         });
       }
     });

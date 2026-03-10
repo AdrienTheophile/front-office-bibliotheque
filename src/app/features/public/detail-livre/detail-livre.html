@@ -1,90 +1,141 @@
-<div class="container py-5">
+<div class="container py-4">
   @if (chargement()) {
-    <div class="alert alert-info text-center py-5">
-      <p>Chargement du livre...</p>
+    <div class="d-flex justify-content-center align-items-center loader-container">
+      <div class="spinner-border text-primary custom-spinner" role="status">
+        <span class="visually-hidden">Chargement du livre...</span>
+      </div>
     </div>
   } @else if (erreur()) {
-    <div class="alert alert-danger text-center py-5">
-      <p>{{ erreur() }}</p>
-      <a [routerLink]="['/catalogue']" class="btn btn-primary">Retour au catalogue</a>
+    <div class="alert alert-danger text-center py-5 rounded-4 shadow-sm border-0 my-5">
+      <div class="fs-1 mb-3">⚠️</div>
+      <h4 class="fw-bold">{{ erreur() }}</h4>
+      <a [routerLink]="['/catalogue']" class="btn btn-outline-danger rounded-pill mt-3 px-4"
+        >Retour au catalogue</a
+      >
     </div>
   } @else if (livre()) {
-    <div class="row">
-      <!-- Book Cover -->
-      <div class="col-md-4 mb-4">
-        <div class="card shadow-sm border-0">
-          <div class="card-body text-center py-5 bg-light">
-            <div class="fs-1 mb-3">📖</div>
-            <p class="text-muted mb-0">{{ livre()?.categories?.[0]?.nom }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Book Details -->
-      <div class="col-md-8">
-        <h1 class="display-5 fw-bold mb-3">{{ livre()?.titre }}</h1>
-        
-        <div class="card border-0 bg-light mb-4">
-          <div class="card-body">
-            <p class="mb-1"><strong>Auteur:</strong> {{ livre()?.auteurs?.[0]?.prenom }} {{ livre()?.auteurs?.[0]?.nom }}</p>
-            <p class="text-muted small mb-0">{{ livre()?.auteurs?.[0]?.description }}</p>
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <div class="row g-3">
-            <div class="col-sm-6">
-              <strong>📅 Année:</strong> {{ livre()?.dateSortie | date:'yyyy' }}
-            </div>
-            <div class="col-sm-6">
-              <strong>🌍 Langue:</strong> {{ livre()?.langue }}
-            </div>
-            <div class="col-sm-6">
-              <strong>📚 Catégorie:</strong> {{ livre()?.categories?.[0]?.nom }}
-            </div>
-          </div>
-        </div>
-
-        <!-- Status -->
-        <div class="mb-4">
-          @if (livre() && estDisponible(livre()!)) {
-            <span class="badge bg-success fs-6">✓ Disponible pour emprunt</span>
-          } @else {
-            <span class="badge bg-danger fs-6">✗ Actuellement indisponible</span>
-          }
-        </div>
-
-        <!-- Description -->
-        @if (livre()?.description) {
-          <div class="mb-4">
-            <h5>Description</h5>
-            <p>{{ livre()?.description }}</p>
-          </div>
-        }
-
-        <!-- Actions -->
-        @if (estConnecte() && estAdherent()) {
-          <div class="mb-4 d-flex gap-2">
-            <button class="btn btn-outline-primary btn-lg" [disabled]="!livre() || !estDisponible(livre()!)">
-              ✋ Réserver
-            </button>
-          </div>
-        } @else if (!estConnecte()) {
-          <div class="mb-4">
-            <a routerLink="/connexion" class="btn btn-outline-secondary">Connectez-vous pour réserver</a>
-          </div>
-        }
-
-        <!-- Back Button -->
-        <a [routerLink]="['/catalogue']" class="btn btn-outline-secondary">
+    <!-- Main Detail Card -->
+    <div class="book-detail-container px-4 py-5 p-md-5">
+      <!-- Back Button Top -->
+      <div class="mb-4">
+        <a [routerLink]="['/catalogue']" class="btn btn-back text-decoration-none">
           ← Retour au catalogue
         </a>
       </div>
+
+      <div class="row align-items-start g-5">
+        <!-- Left Column: Book Cover -->
+        <div class="col-lg-4">
+          <div class="book-cover-wrapper">
+            @if (livre()?.photoCouverture) {
+              <img
+                [src]="livre()?.photoCouverture"
+                [alt]="'Couverture de ' + livre()?.titre"
+                [title]="livre()?.titre"
+                class="book-cover-image"
+              />
+            } @else {
+              <div class="book-cover-placeholder">📖</div>
+              <p class="text-secondary fw-semibold mb-0 text-center">
+                {{ livre()?.categories?.[0]?.nom || 'Livre' }}
+              </p>
+            }
+          </div>
+        </div>
+
+        <!-- Right Column: Details & Actions -->
+        <div class="col-lg-8">
+          <!-- Header (Title & Author) -->
+          <div class="mb-4">
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <span
+                class="badge bg-light text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fw-bold text-uppercase custom-category-badge"
+              >
+                {{ livre()?.categories?.[0]?.nom || 'GÉNÉRAL' }}
+              </span>
+
+              <!-- Availability Status -->
+              @if (estDisponible(livre()!)) {
+                <span class="status-badge status-available">
+                  <i class="fas fa-check-circle pe-1"></i> Disponible
+                </span>
+              } @else {
+                <span class="status-badge status-unavailable">
+                  <i class="fas fa-times-circle pe-1"></i> Emprunté
+                </span>
+              }
+            </div>
+
+            <h1 class="book-title">{{ livre()?.titre }}</h1>
+            <p class="author-name">
+              par {{ livre()?.auteurs?.[0]?.prenom }} {{ livre()?.auteurs?.[0]?.nom }}
+            </p>
+          </div>
+
+          <!-- Metadata Badges -->
+          <div class="d-flex flex-wrap gap-2 mb-4">
+            <div class="meta-badge">
+              <span>📅</span>
+              <span>Année : {{ livre()?.dateSortie | date: 'yyyy' }}</span>
+            </div>
+            <div class="meta-badge">
+              <span>🌍</span>
+              <span>Langue : {{ livre()?.langue }}</span>
+            </div>
+          </div>
+
+          <!-- Synopsis / Description -->
+          @if (livre()?.description) {
+            <div class="synopsis-section">
+              <h5 class="synopsis-title">Synopsis</h5>
+              <p class="synopsis-text">
+                {{ livre()?.description }}
+              </p>
+            </div>
+          } @else {
+            <div class="synopsis-section opacity-50">
+              <p class="synopsis-text fst-italic">
+                Aucun synopsis n'est disponible pour cet ouvrage.
+              </p>
+            </div>
+          }
+
+          <!-- Reservation Actions -->
+          <div class="mt-5 pt-3 border-top">
+            @if (estConnecte() && estAdherent()) {
+              <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
+                <button class="btn btn-reserve" [disabled]="!estDisponible(livre()!)">
+                  🔖 Réserver ce livre
+                </button>
+                @if (!estDisponible(livre()!)) {
+                  <small class="text-danger fw-semibold">
+                    Ce livre est actuellement emprunté.
+                  </small>
+                }
+              </div>
+            } @else if (!estConnecte()) {
+              <div class="bg-light rounded-4 p-4 text-center border">
+                <p class="mb-3 fw-semibold text-dark">Vous souhaitez emprunter cet ouvrage ?</p>
+                <a routerLink="/connexion" class="btn btn-reserve btn-sm px-4">
+                  Connectez-vous pour réserver
+                </a>
+              </div>
+            }
+          </div>
+        </div>
+        <!-- End right col -->
+      </div>
+      <!-- End row -->
     </div>
+    <!-- End Main Detail Card -->
   } @else {
-    <div class="alert alert-info text-center py-5">
-      <p>Livre non trouvé</p>
-      <a [routerLink]="['/catalogue']" class="btn btn-primary">Retour au catalogue</a>
+    <div class="alert alert-info text-center py-5 rounded-4 shadow-sm border-0 my-5">
+      <div class="fs-1 mb-3">🔍</div>
+      <h4 class="fw-bold">Livre introuvable</h4>
+      <p class="text-secondary">Le livre que vous recherchez n'existe pas ou a été retiré.</p>
+      <a [routerLink]="['/catalogue']" class="btn btn-outline-primary rounded-pill mt-3 px-4"
+        >Retour au catalogue</a
+      >
     </div>
   }
 </div>
