@@ -29,7 +29,6 @@ export class Profil implements OnInit {
       nom: ['', Validators.required],
       prenom: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      dateNaissance: [''],
       adressePostale: [''],
       telephone: ['']
     });
@@ -56,7 +55,6 @@ export class Profil implements OnInit {
             nom: profil.utilisateur.nom,
             prenom: profil.utilisateur.prenom,
             email: profil.utilisateur.email,
-            dateNaissance: profil.dateNaissance,
             adressePostale: profil.adressePostale,
             telephone: profil.telephone
           });

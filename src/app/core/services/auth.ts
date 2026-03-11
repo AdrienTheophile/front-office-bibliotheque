@@ -2,8 +2,8 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Adherent, Identifiants, ReponseAuth } from '../models';
-import { tap, switchMap } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { tap, switchMap, catchError } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
 
 // Configuration de l'API
 const API_URL = 'https://localhost:8008/api';
@@ -30,6 +30,7 @@ export class Auth {
   readonly chargement = computed(() => this.chargementSignal());
   readonly erreur = computed(() => this.erreurSignal());
   readonly estAdherent = computed(() => this.adherentActuelSignal()?.adherent != null);
+  readonly estSuspendu = computed(() => this.adherentActuelSignal()?.adherent?.estActif === false);
 
   constructor() {
     this.initialiserDuStockage();
@@ -83,26 +84,34 @@ export class Auth {
       }),
       // Enchaîner avec GET /api/user/me pour récupérer le profil
       switchMap(() => this.http.get<Adherent>(`${API_URL}/user/me`)),
-      tap({
-        next: (utilisateur) => {
-          this.adherentActuelSignal.set(utilisateur);
-          this.sauvegarderAdherentAuStockage(utilisateur);
-          this.chargementSignal.set(false);
-          this.router.navigate(['/tableau-de-bord']);
-        },
-        error: (erreur) => {
-          let msg = 'Erreur d\'authentification: vérifiez vos identifiants';
-          if (erreur.status === 401) {
-            msg = 'Email ou mot de passe incorrect';
-          } else if (erreur.status === 0) {
-            msg = 'Impossible de joindre le serveur (https://localhost:8008)';
-          }
-          this.erreurSignal.set(msg);
-          this.chargementSignal.set(false);
-          // Nettoyer le token si le login a échoué
-          this.tokenSignal.set(null);
-          localStorage.removeItem(this.CLE_JWT);
+      tap((utilisateur) => {
+        // Vérifier si le compte adhérent est suspendu → lancer une erreur
+        if (utilisateur.adherent && utilisateur.adherent.estActif === false) {
+          throw new Error('ACCOUNT_SUSPENDED');
         }
+      }),
+      tap((utilisateur) => {
+        // Succès: stocker l'utilisateur et naviguer
+        this.adherentActuelSignal.set(utilisateur);
+        this.sauvegarderAdherentAuStockage(utilisateur);
+        this.chargementSignal.set(false);
+        this.router.navigate(['/tableau-de-bord']);
+      }),
+      catchError((erreur) => {
+        let msg = 'Erreur d\'authentification: vérifiez vos identifiants';
+        if (erreur.message === 'ACCOUNT_SUSPENDED') {
+          msg = 'Votre compte adhérent est suspendu. Veuillez contacter la bibliothèque pour réactiver votre compte.';
+        } else if (erreur.status === 401) {
+          msg = 'Email ou mot de passe incorrect';
+        } else if (erreur.status === 0) {
+          msg = 'Impossible de joindre le serveur (https://localhost:8008)';
+        }
+        this.erreurSignal.set(msg);
+        this.chargementSignal.set(false);
+        // Nettoyer le token si le login a échoué
+        this.tokenSignal.set(null);
+        localStorage.removeItem(this.CLE_JWT);
+        return throwError(() => new Error(msg));
       })
     );
   }

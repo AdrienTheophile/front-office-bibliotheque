@@ -31,7 +31,7 @@
                 placeholder="Votre prénom"
                 [class.is-invalid]="isFieldInvalid('prenom')">
               <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('prenom')">
-                Le prénom est requis (min. 2 caractères)
+                {{ getFieldError('prenom') }}
               </div>
             </div>
 
@@ -46,7 +46,7 @@
                 placeholder="Votre nom"
                 [class.is-invalid]="isFieldInvalid('nom')">
               <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('nom')">
-                Le nom est requis (min. 2 caractères)
+                {{ getFieldError('nom') }}
               </div>
             </div>
 
@@ -61,7 +61,7 @@
                 placeholder="votre.email@exemple.com"
                 [class.is-invalid]="isFieldInvalid('email')">
               <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('email')">
-                Veuillez entrer une adresse email valide
+                {{ getFieldError('email') }}
               </div>
             </div>
 
@@ -76,7 +76,7 @@
                 placeholder="Au moins 8 caractères"
                 [class.is-invalid]="isFieldInvalid('motDePasse')">
               <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('motDePasse')">
-                Le mot de passe doit contenir au moins 8 caractères
+                {{ getFieldError('motDePasse') }}
               </div>
             </div>
 
@@ -88,7 +88,11 @@
                 class="form-control form-control-lg" 
                 id="telephone"
                 formControlName="telephone"
-                placeholder="+33 6 XX XX XX XX">
+                placeholder="0612345678"
+                [class.is-invalid]="isFieldInvalid('telephone')">
+              <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('telephone')">
+                {{ getFieldError('telephone') }}
+              </div>
             </div>
 
             <!-- Adresse -->

@@ -29,18 +29,36 @@ export class Inscription implements OnInit {
 
   initializeForm(): void {
     this.inscriptionForm = this.fb.group({
-      prenom: ['', [Validators.required, Validators.minLength(2)]],
-      nom: ['', [Validators.required, Validators.minLength(2)]],
+      prenom: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
+      nom: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)]],
       email: ['', [Validators.required, Validators.email]],
-      motDePasse: ['', [Validators.required, Validators.minLength(8)]],
-      telephone: [''],
-      adresse: ['']
+      motDePasse: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)]],
+      telephone: ['', [Validators.pattern(/^(\+33|0)[1-9](\d{2}){4}$/)]],
+      adresse: ['', [Validators.minLength(5)]]
     });
   }
 
   isFieldInvalid(fieldName: string): boolean {
     const field = this.inscriptionForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  getFieldError(fieldName: string): string {
+    const field = this.inscriptionForm.get(fieldName);
+    if (!field || !field.errors || !(field.dirty || field.touched)) return '';
+    if (field.errors['required']) return 'Ce champ est requis';
+    if (field.errors['minlength']) return `Minimum ${field.errors['minlength'].requiredLength} caractères`;
+    if (field.errors['email']) return 'Adresse email invalide';
+    if (field.errors['pattern']) {
+      const messages: Record<string, string> = {
+        prenom: 'Le prénom ne doit contenir que des lettres',
+        nom: 'Le nom ne doit contenir que des lettres',
+        motDePasse: 'Doit contenir au moins une majuscule, une minuscule et un chiffre',
+        telephone: 'Format attendu : 0612345678 ou +33612345678',
+      };
+      return messages[fieldName] || 'Format invalide';
+    }
+    return 'Valeur invalide';
   }
 
   onSubmit(): void {

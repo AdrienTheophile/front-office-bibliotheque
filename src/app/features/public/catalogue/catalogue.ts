@@ -60,6 +60,8 @@ export class Catalogue implements OnInit {
   private readonly PAGE_SIZE = 20;
 
   constructor() {
+    // Réinitialiser les filtres du service pour repartir proprement
+    this.livreService.reinitialiserFiltres();
     this.livreService.chargerLivres(1, this.PAGE_SIZE).subscribe();
   }
 
@@ -94,6 +96,7 @@ export class Catalogue implements OnInit {
     this.selectedLanguage.set('');
     this.dateMin.set('');
     this.dateMax.set('');
+    this.livreService.reinitialiserFiltres();
     this.livreService.chargerLivres(1, this.PAGE_SIZE).subscribe();
   }
 

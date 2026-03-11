@@ -71,6 +71,15 @@ export class DetailLivre implements OnInit {
     const l = this.livre();
     if (!l) return;
 
+    // Vérifier si le compte est suspendu
+    if (this.authService.adherentActuel()?.adherent?.estActif === false) {
+      this.messageReservation.set({
+        type: 'error',
+        texte: 'Votre compte adhérent est suspendu. Vous ne pouvez pas effectuer de réservation.'
+      });
+      return;
+    }
+
     // Vérifier d'abord le quota de réservations (max 3)
     this.reservationEnCours.set(true);
     this.messageReservation.set(null);
