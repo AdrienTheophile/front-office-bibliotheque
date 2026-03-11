@@ -17,6 +17,7 @@ export class TableauDeBord implements OnInit {
   estAdherent = this.authService.estAdherent;
 
   emprunts = this.adherentService.emprunts;
+  empruntsEnCours = this.adherentService.empruntsEnCours;
   reservations = this.adherentService.reservations;
   chargement = this.adherentService.chargement;
   erreurEmprunts = this.adherentService.erreurEmprunts;

@@ -15,34 +15,28 @@ export class EmpruntService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(Auth);
 
-  // Signaux de données
   private readonly mesEmpruntsSignal = signal<Emprunt[]>([]);
   private readonly chargementSignal = signal(false);
   private readonly erreurSignal = signal<string | null>(null);
 
-  // Computed: emprunts actifs
   readonly empruntsActifs = computed(() =>
     this.mesEmpruntsSignal().filter(
       (e) => e.statut === StatutEmprunt.EN_COURS || e.statut === StatutEmprunt.EN_RETARD
     )
   );
 
-  // Computed: emprunts en retard
   readonly empruntsEnRetard = computed(() =>
     this.mesEmpruntsSignal().filter((e) => e.statut === StatutEmprunt.EN_RETARD)
   );
 
-  // Computed: emprunts à jour
   readonly empruntsAJour = computed(() =>
     this.mesEmpruntsSignal().filter((e) => e.statut === StatutEmprunt.EN_COURS)
   );
 
-  // Computed: emprunts retournés
   readonly empruntsRetournes = computed(() =>
     this.mesEmpruntsSignal().filter((e) => e.statut === StatutEmprunt.RETOURNE)
   );
 
-  // Computed: nombre d'emprunts actifs
   readonly nombreEmpruntsActifs = computed(() => this.empruntsActifs().length);
   readonly chargement = computed(() => this.chargementSignal());
   readonly erreur = computed(() => this.erreurSignal());
@@ -70,7 +64,6 @@ export class EmpruntService {
         error: (erreur) => {
           this.erreurSignal.set('Erreur lors du chargement des emprunts');
           this.chargementSignal.set(false);
-          console.error('Erreur chargerMesEmprunts:', erreur);
         }
       })
     );
@@ -128,7 +121,6 @@ export class EmpruntService {
         },
         error: (erreur) => {
           this.erreurSignal.set('Erreur lors du retour de l\'emprunt');
-          console.error('Erreur retournerEmprunt:', erreur);
         }
       })
     );
@@ -150,7 +142,6 @@ export class EmpruntService {
         },
         error: (erreur) => {
           this.erreurSignal.set('Erreur lors de l\'emprunt du livre');
-          console.error('Erreur emprunterLivre:', erreur);
         }
       })
     );

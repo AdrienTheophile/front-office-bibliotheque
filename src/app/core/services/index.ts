@@ -3,4 +3,3 @@ export { LivreService } from './book';
 export { ReservationService } from './reservation';
 export { EmpruntService } from './emprunt';
 export { AdherentService } from './adherent';
-export { ApiService } from './api.service';

@@ -73,8 +73,7 @@ export class Inscription implements OnInit {
 
     const formData = this.inscriptionForm.value;
 
-    // Envoyer vers l'API d'inscription
-    // Le body correspond à ce que le backend attend
+    // Envoi vers l'API d'inscription
     this.http.post<any>(`${API_URL}/register`, {
       email: formData.email,
       password: formData.motDePasse,
@@ -85,7 +84,7 @@ export class Inscription implements OnInit {
     }).subscribe({
       next: () => {
         this.isLoading = false;
-        this.successMessage = '✓ Compte créé avec succès ! Redirection vers la connexion...';
+        this.successMessage = 'Compte créé avec succès ! Redirection vers la connexion...';
         setTimeout(() => this.router.navigate(['/connexion']), 1500);
       },
       error: (erreur: any) => {

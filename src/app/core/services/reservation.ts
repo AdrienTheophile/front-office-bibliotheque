@@ -15,22 +15,18 @@ export class ReservationService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(Auth);
 
-  // Signaux de données
   private readonly mesReservationsSignal = signal<Reservation[]>([]);
   private readonly chargementSignal = signal(false);
   private readonly erreurSignal = signal<string | null>(null);
 
-  // Computed: nombre de réservations actives de l'adhérent
   readonly nombreReservationsActives = computed(() =>
     this.mesReservationsSignal().filter((r) => r.statut === StatutReservation.ACTIVE).length
   );
 
-  // Computed: peut faire une nouvelle réservation ?
   readonly peutReserver = computed(
     () => this.nombreReservationsActives() < MAX_RESERVATIONS_PAR_ADHERENT
   );
 
-  // Computed: réservations actives
   readonly reservationsActives = computed(() =>
     this.mesReservationsSignal().filter((r) => r.statut === StatutReservation.ACTIVE)
   );
@@ -61,7 +57,6 @@ export class ReservationService {
         error: (erreur) => {
           this.erreurSignal.set('Erreur lors du chargement des réservations');
           this.chargementSignal.set(false);
-          console.error('Erreur chargerMesReservations:', erreur);
         }
       })
     );

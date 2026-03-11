@@ -18,13 +18,11 @@ export class Auth {
   private readonly CLE_JWT = 'auth_token';
   private readonly CLE_ADHERENT = 'auth_adherent';
 
-  // Signaux d'authentification
   private readonly adherentActuelSignal = signal<Adherent | null>(this.chargerAdherentDuStockage());
   private readonly tokenSignal = signal<string | null>(this.obtenirTokenDuStockage());
   private readonly chargementSignal = signal(false);
   private readonly erreurSignal = signal<string | null>(null);
 
-  // Computed
   readonly estAuthentifie = computed(() => this.tokenSignal() !== null);
   readonly adherentActuel = computed(() => this.adherentActuelSignal());
   readonly chargement = computed(() => this.chargementSignal());
@@ -69,8 +67,7 @@ export class Auth {
   }
 
   /**
-   * Connexion: POST /api/login → { token }
-   * Puis: GET /api/user/me → infos utilisateur
+   * Connexion : POST /api/login puis GET /api/user/me
    */
   seConnecter(identifiants: Identifiants) {
     this.chargementSignal.set(true);
@@ -78,20 +75,16 @@ export class Auth {
 
     return this.http.post<ReponseAuth>(`${API_URL}/login`, identifiants).pipe(
       tap(reponse => {
-        // Stocker le token immédiatement pour que l'intercepteur le trouve
         this.tokenSignal.set(reponse.token);
         this.sauvegarderTokenAuStockage(reponse.token);
       }),
-      // Enchaîner avec GET /api/user/me pour récupérer le profil
       switchMap(() => this.http.get<Adherent>(`${API_URL}/user/me`)),
       tap((utilisateur) => {
-        // Vérifier si le compte adhérent est suspendu → lancer une erreur
         if (utilisateur.adherent && utilisateur.adherent.estActif === false) {
           throw new Error('ACCOUNT_SUSPENDED');
         }
       }),
       tap((utilisateur) => {
-        // Succès: stocker l'utilisateur et naviguer
         this.adherentActuelSignal.set(utilisateur);
         this.sauvegarderAdherentAuStockage(utilisateur);
         this.chargementSignal.set(false);
@@ -108,7 +101,6 @@ export class Auth {
         }
         this.erreurSignal.set(msg);
         this.chargementSignal.set(false);
-        // Nettoyer le token si le login a échoué
         this.tokenSignal.set(null);
         localStorage.removeItem(this.CLE_JWT);
         return throwError(() => new Error(msg));
@@ -159,15 +151,14 @@ export class Auth {
   }
 
   /**
-   * Met à jour le profil via PATCH /api/user/me
-   * Ne stocke pas la réponse directement — appeler rafraichirProfil() ensuite
+   * Mise à jour du profil (PATCH /api/user/me)
    */
   mettreAJourProfil(donnees: Record<string, any>): Observable<any> {
     return this.http.patch<any>(`${API_URL}/user/me`, donnees);
   }
 
   /**
-   * Re-fetch le profil depuis GET /api/user/me et met à jour les signaux
+   * Rafraîchit le profil depuis le serveur
    */
   rafraichirProfil(): Observable<Adherent> {
     return this.http.get<Adherent>(`${API_URL}/user/me`).pipe(

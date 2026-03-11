@@ -1,10 +1,7 @@
 import { Routes } from '@angular/router';
-import { Login } from './components/login/login';
 import { authGuard, roleGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-    { path: 'login', component: Login },
-
   {
     path: 'connexion',
     loadComponent: () => import('./features/auth/connexion/connexion').then(m => m.Connexion)

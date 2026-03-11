@@ -20,18 +20,15 @@ const API_URL = 'https://localhost:8008/api';
 export class LivreService {
   private readonly http = inject(HttpClient);
 
-  // ===== SIGNAUX DE DONNÉES =====
   private readonly livresSignal = signal<Livre[]>([]);
   private readonly livrSelectionneSignal = signal<Livre | null>(null);
   private readonly paginationSignal = signal({ page: 1, limit: 10, total: 0, pages: 0 });
   private readonly loadingSignal = signal(false);
   private readonly errorSignal = signal<string | null>(null);
 
-  // Caches pour auteurs et catégories
   private auteurCache$: Observable<Auteur[]> | null = null;
   private categorieCache$: Observable<Categorie[]> | null = null;
 
-  // ===== SIGNAUX DE FILTRAGE =====
   private readonly filtreLangueSignal = signal<Langue | null>(null);
   private readonly filtreCategoriIdSignal = signal<number | null>(null);
   private readonly rechercheTitreSignal = signal<string>('');
@@ -45,10 +42,6 @@ export class LivreService {
   readonly pagination = computed(() => this.paginationSignal());
   readonly chargement = computed(() => this.loadingSignal());
   readonly erreur = computed(() => this.errorSignal());
-
-  /**
-   * Récupère les livres avec pagination
-   */
   chargerLivres(page: number = 1, limit: number = 10): Observable<PaginatedResponse<Livre>> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
@@ -70,7 +63,6 @@ export class LivreService {
         error: (erreur) => {
           this.errorSignal.set('Erreur lors du chargement des livres');
           this.loadingSignal.set(false);
-          console.error('Erreur chargerLivres:', erreur);
         },
       }),
     );
@@ -85,7 +77,6 @@ export class LivreService {
 
     let params = new HttpParams();
 
-    // Ajout des paramètres de recherche
     if (filtres.titre) params = params.set('titre', filtres.titre);
     if (filtres.auteur) params = params.set('auteur', filtres.auteur.toString());
     if (filtres.categorie) params = params.set('categorie', filtres.categorie.toString());
@@ -93,13 +84,9 @@ export class LivreService {
     if (filtres.dateMin) params = params.set('dateMin', filtres.dateMin);
     if (filtres.dateMax) params = params.set('dateMax', filtres.dateMax);
 
-    console.log('🔍 Recherche avec filtres:', filtres);
-    console.log('📡 URL de recherche:', `${API_URL}/recherche`, 'params:', params.keys());
-
     return this.http.get<Livre[]>(`${API_URL}/recherche`, { params }).pipe(
       tap({
         next: (livres) => {
-          console.log(`✅ Résultats trouvés: ${livres.length} livre(s)`);
           this.livresSignal.set(livres);
           this.paginationSignal.set({
             page: 1,
@@ -110,7 +97,6 @@ export class LivreService {
           this.loadingSignal.set(false);
         },
         error: (erreur) => {
-          console.error('❌ Erreur rechercherLivres:', erreur);
           this.errorSignal.set('Erreur lors de la recherche');
           this.loadingSignal.set(false);
         },
@@ -131,7 +117,6 @@ export class LivreService {
         error: (erreur) => {
           this.errorSignal.set('Erreur lors de la récupération du livre');
           this.loadingSignal.set(false);
-          console.error('Erreur obtenirLivreParId:', erreur);
         },
       }),
     );
@@ -144,29 +129,19 @@ export class LivreService {
     this.livrSelectionneSignal.set(livre);
   }
 
-  // ===== GESTION DES FILTRES =====
-
-  /**
-   * Met à jour les filtres et déclenche une nouvelle recherche
-   */
   appliquerFiltres(title?: string, auteurId?: number, categorieId?: number, langue?: string, dateMin?: string, dateMax?: string): void {
     if (title !== undefined) this.rechercheTitreSignal.set(title);
     if (auteurId !== undefined) this.filtreAuteurIdSignal.set(auteurId);
     if (categorieId !== undefined) this.filtreCategoriIdSignal.set(categorieId);
     if (dateMin !== undefined) this.filtreDateMinSignal.set(dateMin || null);
     if (dateMax !== undefined) this.filtreDateMaxSignal.set(dateMax || null);
-    // Pour la langue, convertir en Langue ou null
     if (langue !== undefined) {
       this.filtreLangueSignal.set(langue && langue.length > 0 ? (langue as Langue) : null);
     }
 
-    // Déclenche la recherche avec les filtres actuels
     this.executerRechercheAvecFiltres();
   }
 
-  /**
-   * Exécute la recherche à partir des filtres actuels
-   */
   private executerRechercheAvecFiltres(): void {
     const filtres: RechercheLivreParams = {
       page: this.paginationSignal().page,
@@ -191,17 +166,12 @@ export class LivreService {
     );
 
     if (hasActiveFilters) {
-      // Recherche avec filtres
       this.rechercherLivres(filtres).subscribe();
     } else {
-      // Pas de filtre: charger tous les livres
       this.chargerLivres(1, 20).subscribe();
     }
   }
 
-  /**
-   * Réinitialise tous les filtres
-   */
   reinitialiserFiltres(): void {
     this.rechercheTitreSignal.set('');
     this.filtreAuteurIdSignal.set(null);
@@ -212,9 +182,6 @@ export class LivreService {
     this.paginationSignal.set({ page: 1, limit: 20, total: 0, pages: 0 });
   }
 
-  /**
-   * Récupère les filtres actuels
-   */
   obtenirFiltres() {
     return {
       titre: this.rechercheTitreSignal(),
@@ -224,17 +191,13 @@ export class LivreService {
     };
   }
 
-  /**
-   * Récupère tous les auteurs (avec cache)
-   */
   obtenirAuteurs(): Observable<Auteur[]> {
     if (!this.auteurCache$) {
       this.auteurCache$ = this.http.get<Auteur[]>(`${API_URL}/auteurs`).pipe(
         shareReplay(1),
         tap({
-          error: (erreur) => {
-            console.error('Erreur obtenirAuteurs:', erreur);
-            this.auteurCache$ = null; // Réinitialise le cache en cas d'erreur
+          error: () => {
+            this.auteurCache$ = null;
           },
         }),
       );
@@ -242,24 +205,17 @@ export class LivreService {
     return this.auteurCache$;
   }
 
-  /**
-   * Récupère un auteur par ID
-   */
   obtenirAuteurParId(id: number): Observable<Auteur> {
     return this.http.get<Auteur>(`${API_URL}/auteurs/${id}`);
   }
 
-  /**
-   * Récupère toutes les catégories (avec cache)
-   */
   obtenirCategories(): Observable<Categorie[]> {
     if (!this.categorieCache$) {
       this.categorieCache$ = this.http.get<Categorie[]>(`${API_URL}/categories`).pipe(
         shareReplay(1),
         tap({
-          error: (erreur) => {
-            console.error('Erreur obtenirCategories:', erreur);
-            this.categorieCache$ = null; // Réinitialise le cache en cas d'erreur
+          error: () => {
+            this.categorieCache$ = null;
           },
         }),
       );
@@ -267,16 +223,10 @@ export class LivreService {
     return this.categorieCache$;
   }
 
-  /**
-   * Récupère une catégorie par ID
-   */
   obtenirCategorieParId(id: number): Observable<Categorie> {
     return this.http.get<Categorie>(`${API_URL}/categories/${id}`);
   }
 
-  /**
-   * Invalide les caches (utile après une mise à jour)
-   */
   invaliderCaches(): void {
     this.auteurCache$ = null;
     this.categorieCache$ = null;

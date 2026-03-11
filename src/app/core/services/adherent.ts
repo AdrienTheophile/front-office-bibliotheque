@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Adherent, Emprunt, Reservation, StatutEmprunt, StatutReservation } from '../models';
 
-// Configuration de l'API Symfony
 const API_URL = 'https://localhost:8008/api/adherent';
 
 export interface ProfilAdherent {
@@ -27,7 +26,6 @@ export interface ProfilAdherent {
 export class AdherentService {
   private readonly http = inject(HttpClient);
 
-  // ===== SIGNAUX DE DONNÉES =====
   private readonly profilSignal = signal<ProfilAdherent | null>(null);
   private readonly empruntsSignal = signal<Emprunt[]>([]);
   private readonly reservationsSignal = signal<Reservation[]>([]);
@@ -36,9 +34,11 @@ export class AdherentService {
   private readonly erreurEmpruntsSignal = signal<string | null>(null);
   private readonly erreurReservationsSignal = signal<string | null>(null);
 
-  // ===== COMPUTED SIGNALS =====
   readonly profil = computed(() => this.profilSignal());
   readonly emprunts = computed(() => this.empruntsSignal());
+  readonly empruntsEnCours = computed(() =>
+    this.empruntsSignal().filter(e => e.statut === StatutEmprunt.EN_COURS || e.statut === StatutEmprunt.EN_RETARD)
+  );
   readonly reservations = computed(() => this.reservationsSignal());
   readonly chargement = computed(() => this.loadingEmpruntsSignal() || this.loadingReservationsSignal());
   readonly erreur = computed(() => this.erreurEmpruntsSignal() || this.erreurReservationsSignal());
@@ -59,15 +59,11 @@ export class AdherentService {
         },
         error: (err) => {
           this.loadingEmpruntsSignal.set(false);
-          console.error('Erreur obtenirProfil:', err);
         }
       })
     );
   }
 
-  /**
-   * Récupère les emprunts de l'adhérent connecté
-   */
   obtenirEmprunts(): Observable<any> {
     this.loadingEmpruntsSignal.set(true);
     this.erreurEmpruntsSignal.set(null);
@@ -83,15 +79,11 @@ export class AdherentService {
           const detail = this.extraireErreur(err);
           this.erreurEmpruntsSignal.set(`Erreur emprunts: ${detail}`);
           this.loadingEmpruntsSignal.set(false);
-          console.error('Erreur obtenirEmprunts:', err);
         }
       })
     );
   }
 
-  /**
-   * Récupère les réservations de l'adhérent connecté
-   */
   obtenirReservations(): Observable<any> {
     this.loadingReservationsSignal.set(true);
     this.erreurReservationsSignal.set(null);
@@ -107,45 +99,32 @@ export class AdherentService {
           const detail = this.extraireErreur(err);
           this.erreurReservationsSignal.set(`Erreur réservations: ${detail}`);
           this.loadingReservationsSignal.set(false);
-          console.error('Erreur obtenirReservations:', err);
         }
       })
     );
   }
 
-  /**
-   * Crée une nouvelle réservation
-   */
   creerReservation(livreId: number): Observable<any> {
     return this.http.post<any>(`${API_URL}/reservations`, { livreId }).pipe(
       tap({
         next: () => {
           this.obtenirReservations().subscribe();
         },
-        error: (err) => {
-          console.error('Erreur creerReservation:', err);
-        }
+        error: (err) => {}
       })
     );
   }
 
-  /**
-   * Annule une réservation
-   */
   annulerReservation(reservationId: number): Observable<any> {
     return this.http.delete<any>(`${API_URL}/reservations/${reservationId}`).pipe(
       tap({
         next: () => {
           this.obtenirReservations().subscribe();
         },
-        error: (err) => {
-          console.error('Erreur annulerReservation:', err);
-        }
+        error: (err) => {}
       })
     );
   }
-
-  // ===== HELPERS =====
 
   private mapperEmprunt(e: any): Emprunt {
     return {
@@ -156,7 +135,7 @@ export class AdherentService {
       dateRetour: e.dateRetour ?? e.dateLimiteRetour,
       dateRetourReel: e.dateRetourReel ?? e.dateRetourEffective ?? null,
       dateRetourEffective: e.dateRetourReel ?? e.dateRetourEffective ?? null,
-      statut: e.statut ?? this.calculerStatutEmprunt(e),
+      statut: this.normaliserStatutEmprunt(e.statut) ?? this.calculerStatutEmprunt(e),
       livre: this.mapperLivreSimple(e.livre),
       adherent: e.adherent ?? ({} as any),
     };
@@ -187,9 +166,19 @@ export class AdherentService {
 
   private calculerStatutEmprunt(e: any): StatutEmprunt {
     if (e.dateRetourReel || e.dateRetourEffective) return StatutEmprunt.RETOURNE;
-    const dateRetour = e.dateRetour ?? e.dateLimiteRetour;
-    if (dateRetour && new Date(dateRetour) < new Date()) return StatutEmprunt.EN_RETARD;
+    const dateLimite = e.dateLimiteRetour ?? e.dateRetour;
+    if (dateLimite && new Date(dateLimite) < new Date()) return StatutEmprunt.EN_RETARD;
     return StatutEmprunt.EN_COURS;
+  }
+
+  private normaliserStatutEmprunt(statut: string | undefined): StatutEmprunt | null {
+    if (!statut) return null;
+    const s = statut.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (s.includes('retourne')) return StatutEmprunt.RETOURNE;
+    if (s.includes('retard')) return StatutEmprunt.EN_RETARD;
+    if (s.includes('cours')) return StatutEmprunt.EN_COURS;
+    if (Object.values(StatutEmprunt).includes(statut as StatutEmprunt)) return statut as StatutEmprunt;
+    return null;
   }
 
   private extraireErreur(err: any): string {

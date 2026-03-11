@@ -15,7 +15,6 @@ export class GestionEmprunts {
 
   retournerEmprunt(empruntId: number): void {
     this.empruntService.retournerEmprunt(empruntId);
-    console.log('Emprunt retourn\u00e9:', empruntId);
   }
 }
 

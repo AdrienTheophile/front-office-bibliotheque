@@ -40,8 +40,7 @@ export class MesEmprunts implements OnInit {
   }
 
   retournerEmprunt(empruntId: number): void {
-    // TODO: Implémenter le retour d'emprunt via l'API
-    console.log('Retour d\'emprunt:', empruntId);
+    // Le retour d'emprunt est géré par le bibliothécaire via le back-office
   }
 
   obtenirJoursAvantLimite(emprunt: Emprunt): number {
