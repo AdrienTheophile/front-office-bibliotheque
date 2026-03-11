@@ -21,14 +21,38 @@ export interface Livre {
   auteurs: Auteur[];
   categories: Categorie[];
   description?: string;
+  disponible?: boolean;
+  reserve?: boolean;
   emprunts?: Emprunt[];
   reservations?: Reservation;
 }
 
 /**
- * Computed: un livre est disponible si aucun emprunt actif
+ * Un livre est disponible s'il n'est ni emprunté ni réservé.
  */
 export function estDisponible(livre: Livre): boolean {
-  if (!livre.emprunts || livre.emprunts.length === 0) return true;
-  return livre.emprunts.every(e => e.dateRetourReel !== null);
+  if (livre.disponible !== undefined && livre.disponible !== null) {
+    return livre.disponible && !estReserve(livre);
+  }
+  if (!livre.emprunts || livre.emprunts.length === 0) return !estReserve(livre);
+  const pasEmprunte = livre.emprunts.every(e => e.dateRetourReel != null && e.dateRetourReel !== undefined);
+  return pasEmprunte && !estReserve(livre);
+}
+
+/**
+ * Un livre est réservé si l'API retourne reserve=true.
+ */
+export function estReserve(livre: Livre): boolean {
+  return livre.reserve === true;
+}
+
+/**
+ * Un livre est emprunté (non disponible ET pas juste réservé).
+ */
+export function estEmprunte(livre: Livre): boolean {
+  if (livre.disponible !== undefined && livre.disponible !== null) {
+    return !livre.disponible;
+  }
+  if (!livre.emprunts || livre.emprunts.length === 0) return false;
+  return livre.emprunts.some(e => e.dateRetourReel == null);
 }

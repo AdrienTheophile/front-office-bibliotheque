@@ -3,9 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Adherent, Identifiants, ReponseAuth } from '../models';
 import { tap, switchMap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 // Configuration de l'API
-const API_URL = 'http://localhost:8008/api';
+const API_URL = 'https://localhost:8008/api';
 
 @Injectable({
   providedIn: 'root'
@@ -94,7 +95,7 @@ export class Auth {
           if (erreur.status === 401) {
             msg = 'Email ou mot de passe incorrect';
           } else if (erreur.status === 0) {
-            msg = 'Impossible de joindre le serveur (http://localhost:8008)';
+            msg = 'Impossible de joindre le serveur (https://localhost:8008)';
           }
           this.erreurSignal.set(msg);
           this.chargementSignal.set(false);
@@ -150,9 +151,17 @@ export class Auth {
 
   /**
    * Met à jour le profil via PATCH /api/user/me
+   * Ne stocke pas la réponse directement — appeler rafraichirProfil() ensuite
    */
-  mettreAJourProfil(donnees: Record<string, any>) {
-    return this.http.patch<Adherent>(`${API_URL}/user/me`, donnees).pipe(
+  mettreAJourProfil(donnees: Record<string, any>): Observable<any> {
+    return this.http.patch<any>(`${API_URL}/user/me`, donnees);
+  }
+
+  /**
+   * Re-fetch le profil depuis GET /api/user/me et met à jour les signaux
+   */
+  rafraichirProfil(): Observable<Adherent> {
+    return this.http.get<Adherent>(`${API_URL}/user/me`).pipe(
       tap((utilisateur) => {
         this.adherentActuelSignal.set(utilisateur);
         this.sauvegarderAdherentAuStockage(utilisateur);

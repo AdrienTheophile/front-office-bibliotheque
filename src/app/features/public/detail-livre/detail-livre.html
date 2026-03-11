@@ -55,13 +55,23 @@
               </span>
 
               <!-- Availability Status -->
-              @if (estDisponible(livre()!)) {
-                <span class="status-badge status-available">
-                  <i class="fas fa-check-circle pe-1"></i> Disponible
-                </span>
-              } @else {
+              @if (estEmprunte(livre()!)) {
                 <span class="status-badge status-unavailable">
                   <i class="fas fa-times-circle pe-1"></i> Emprunté
+                </span>
+              } @else if (estReserve(livre()!)) {
+                @if (estMaReservation()) {
+                  <span class="badge bg-info text-white border border-info rounded-pill px-3 py-2 fw-semibold">
+                    Ma réservation
+                  </span>
+                } @else {
+                  <span class="badge bg-warning text-dark border border-warning rounded-pill px-3 py-2 fw-semibold">
+                    Réservé
+                  </span>
+                }
+              } @else {
+                <span class="status-badge status-available">
+                  <i class="fas fa-check-circle pe-1"></i> Disponible
                 </span>
               }
             </div>
@@ -108,7 +118,7 @@
               </div>
             }
 
-            @if (estConnecte() && estAdherent()) {
+            @if (estConnecte() && estAdherent() && !estBiblioOuAdmin()) {
               <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
                 <button class="btn btn-reserve" [disabled]="!estDisponible(livre()!) || reservationEnCours()" (click)="reserverLivre()">
                   @if (reservationEnCours()) {
@@ -118,9 +128,17 @@
                     🔖 Réserver ce livre
                   }
                 </button>
-                @if (!estDisponible(livre()!)) {
+                @if (estEmprunte(livre()!)) {
                   <small class="text-danger fw-semibold">
                     Ce livre est actuellement emprunté.
+                  </small>
+                } @else if (estReserve(livre()!) && !estMaReservation()) {
+                  <small class="text-warning fw-semibold">
+                    Ce livre est déjà réservé par un autre adhérent.
+                  </small>
+                } @else if (estMaReservation()) {
+                  <small class="text-info fw-semibold">
+                    Vous avez déjà réservé ce livre.
                   </small>
                 }
               </div>

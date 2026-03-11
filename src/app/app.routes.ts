@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { Login } from './components/login/login';
+import { authGuard, roleGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
     { path: 'login', component: Login },
@@ -8,10 +9,7 @@ export const routes: Routes = [
     path: 'connexion',
     loadComponent: () => import('./features/auth/connexion/connexion').then(m => m.Connexion)
   },
-  {
-    path: 'inscription',
-    loadComponent: () => import('./features/auth/inscription/inscription').then(m => m.Inscription)
-  },
+
   {
     path: 'non-autorise',
     loadComponent: () => import('./features/auth/non-autorise/non-autorise').then(m => m.NonAutorise)
@@ -40,9 +38,10 @@ export const routes: Routes = [
     ]
   },
   
-  // Espace adhérent (J'ai supprimé canActivate)
+  // Espace adhérent
   {
     path: 'tableau-de-bord',
+    canActivate: [authGuard],
     children: [
       {
         path: '',
@@ -63,9 +62,10 @@ export const routes: Routes = [
     ]
   },
   
-  // Espace bibliothécaire (J'ai supprimé canActivate)
+  // Espace bibliothécaire
   {
     path: 'bibliothecaire',
+    canActivate: [roleGuard('ROLE_BIBLIO', 'ROLE_ADMIN')],
     children: [
       {
         path: 'emprunts',
@@ -74,9 +74,10 @@ export const routes: Routes = [
     ]
   },
   
-  // Espace responsable (J'ai supprimé canActivate)
+  // Espace responsable
   {
     path: 'responsable',
+    canActivate: [roleGuard('ROLE_ADMIN')],
     children: [
       {
         path: 'statistiques',

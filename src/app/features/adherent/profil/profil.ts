@@ -72,18 +72,47 @@ export class Profil implements OnInit {
       this.sauvegardeEnCours.set(true);
       this.messageSauvegarde.set(null);
       const val = this.formulaire.value;
-      this.authService.mettreAJourProfil({
+      const utilisateurActuel = this.authService.adherentActuel();
+      const emailModifie = val.email !== utilisateurActuel?.email;
+
+      const payload: any = {
         nom: val.nom,
         prenom: val.prenom,
-        numTel: val.telephone,
-        adressePostale: val.adressePostale
-      }).subscribe({
+        email: val.email,
+      };
+      // N'envoyer les champs adhérent que si l'utilisateur est adhérent
+      if (this.authService.estAdherent()) {
+        payload.numTel = val.telephone;
+        payload.adressePostale = val.adressePostale;
+      }
+      this.authService.mettreAJourProfil(payload).subscribe({
         next: () => {
-          this.messageSauvegarde.set('Profil mis à jour avec succès !');
-          this.sauvegardeEnCours.set(false);
+          if (emailModifie) {
+            // L'email a changé → le JWT est invalidé, reconnexion nécessaire
+            this.messageSauvegarde.set('Email modifié avec succès ! Reconnexion nécessaire...');
+            this.sauvegardeEnCours.set(false);
+            setTimeout(() => this.authService.seDeconnecter(), 2000);
+          } else {
+            // Re-fetch le profil complet pour mettre à jour les signaux proprement
+            this.authService.rafraichirProfil().subscribe({
+              next: () => {
+                this.messageSauvegarde.set('Profil mis à jour avec succès !');
+                this.sauvegardeEnCours.set(false);
+              },
+              error: () => {
+                // Le rafraîchissement a échoué mais la sauvegarde a réussi
+                this.messageSauvegarde.set('Profil sauvegardé !');
+                this.sauvegardeEnCours.set(false);
+              }
+            });
+          }
         },
-        error: () => {
-          this.messageSauvegarde.set('Erreur lors de la sauvegarde du profil');
+        error: (err) => {
+          if (err.status === 401) {
+            this.messageSauvegarde.set('Session expirée. Reconnexion nécessaire.');
+          } else {
+            this.messageSauvegarde.set('Erreur lors de la sauvegarde du profil');
+          }
           this.sauvegardeEnCours.set(false);
         }
       });

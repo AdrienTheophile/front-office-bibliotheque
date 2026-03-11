@@ -5,7 +5,7 @@ import { tap } from 'rxjs/operators';
 import { Adherent, Emprunt, Reservation, StatutEmprunt, StatutReservation } from '../models';
 
 // Configuration de l'API Symfony
-const API_URL = 'http://localhost:8008/api/adherent';
+const API_URL = 'https://localhost:8008/api/adherent';
 
 export interface ProfilAdherent {
   id: number;
@@ -193,7 +193,7 @@ export class AdherentService {
   }
 
   private extraireErreur(err: any): string {
-    if (err?.status === 0) return 'Serveur inaccessible (http://localhost:8008)';
+    if (err?.status === 0) return 'Serveur inaccessible (https://localhost:8008)';
     const serverMsg = err?.error?.error || err?.error?.message || err?.error?.detail;
     if (serverMsg) return `[${err.status}] ${serverMsg}`;
     return `HTTP ${err?.status} — ${err?.statusText || 'Erreur inconnue'}`;

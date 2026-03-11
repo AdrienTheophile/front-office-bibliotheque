@@ -36,6 +36,8 @@ export class LivreService {
   private readonly filtreCategoriIdSignal = signal<number | null>(null);
   private readonly rechercheTitreSignal = signal<string>('');
   private readonly filtreAuteurIdSignal = signal<number | null>(null);
+  private readonly filtreDateMinSignal = signal<string | null>(null);
+  private readonly filtreDateMaxSignal = signal<string | null>(null);
 
   // ===== COMPUTED SIGNALS =====
   readonly livresFiltres = computed(() => this.livresSignal());
@@ -147,10 +149,12 @@ export class LivreService {
   /**
    * Met à jour les filtres et déclenche une nouvelle recherche
    */
-  appliquerFiltres(title?: string, auteurId?: number, categorieId?: number, langue?: string): void {
+  appliquerFiltres(title?: string, auteurId?: number, categorieId?: number, langue?: string, dateMin?: string, dateMax?: string): void {
     if (title !== undefined) this.rechercheTitreSignal.set(title);
     if (auteurId !== undefined) this.filtreAuteurIdSignal.set(auteurId);
     if (categorieId !== undefined) this.filtreCategoriIdSignal.set(categorieId);
+    if (dateMin !== undefined) this.filtreDateMinSignal.set(dateMin || null);
+    if (dateMax !== undefined) this.filtreDateMaxSignal.set(dateMax || null);
     // Pour la langue, convertir en Langue ou null
     if (langue !== undefined) {
       this.filtreLangueSignal.set(langue && langue.length > 0 ? (langue as Langue) : null);
@@ -173,13 +177,17 @@ export class LivreService {
     if (this.filtreAuteurIdSignal()) filtres.auteur = this.filtreAuteurIdSignal()!;
     if (this.filtreCategoriIdSignal()) filtres.categorie = this.filtreCategoriIdSignal()!;
     if (this.filtreLangueSignal()) filtres.langue = this.filtreLangueSignal()!;
+    if (this.filtreDateMinSignal()) filtres.dateMin = this.filtreDateMinSignal()!;
+    if (this.filtreDateMaxSignal()) filtres.dateMax = this.filtreDateMaxSignal()!;
 
     // S'il y a au moins un filtre actif, utiliser la recherche avancée
     const hasActiveFilters = !!(
       filtres.titre ||
       filtres.auteur ||
       filtres.categorie ||
-      filtres.langue
+      filtres.langue ||
+      filtres.dateMin ||
+      filtres.dateMax
     );
 
     if (hasActiveFilters) {
@@ -187,7 +195,7 @@ export class LivreService {
       this.rechercherLivres(filtres).subscribe();
     } else {
       // Pas de filtre: charger tous les livres
-      this.chargerLivres(1, 10).subscribe();
+      this.chargerLivres(1, 20).subscribe();
     }
   }
 
@@ -199,8 +207,9 @@ export class LivreService {
     this.filtreAuteurIdSignal.set(null);
     this.filtreCategoriIdSignal.set(null);
     this.filtreLangueSignal.set(null);
-    this.paginationSignal.set({ page: 1, limit: 10, total: 0, pages: 0 });
-    this.chargerLivres(1, 10).subscribe();
+    this.filtreDateMinSignal.set(null);
+    this.filtreDateMaxSignal.set(null);
+    this.paginationSignal.set({ page: 1, limit: 20, total: 0, pages: 0 });
   }
 
   /**

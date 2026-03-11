@@ -72,16 +72,18 @@
                   <span>👤</span> Profil
                 </a>
               </li>
-              <li>
-                <a class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2" [routerLink]="['/tableau-de-bord/reservations']" (click)="dropdownOuvert.set(false)">
-                  <span>🔖</span> Réservations
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2" [routerLink]="['/tableau-de-bord/emprunts']" (click)="dropdownOuvert.set(false)">
-                  <span>📖</span> Emprunts
-                </a>
-              </li>
+              @if (authService.estAdherent()) {
+                <li>
+                  <a class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2" [routerLink]="['/tableau-de-bord/reservations']" (click)="dropdownOuvert.set(false)">
+                    <span>🔖</span> Réservations
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2" [routerLink]="['/tableau-de-bord/emprunts']" (click)="dropdownOuvert.set(false)">
+                    <span>📖</span> Emprunts
+                  </a>
+                </li>
+              }
               <li><hr class="dropdown-divider my-2" /></li>
               <li>
                 <a

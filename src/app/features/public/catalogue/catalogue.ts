@@ -1,10 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { LivreService } from '../../../core/services/book';
-import { Livre, Langue, estDisponible } from '../../../core/models';
+import { LivreService, Auth } from '../../../core';
+import { AdherentService } from '../../../core/services/adherent';
+import { Livre, Langue, estDisponible, estReserve, estEmprunte } from '../../../core/models';
 
 @Component({
   selector: 'app-catalogue',
@@ -12,14 +13,23 @@ import { Livre, Langue, estDisponible } from '../../../core/models';
   templateUrl: './catalogue.html',
   styleUrl: './catalogue.css',
 })
-export class Catalogue {
+export class Catalogue implements OnInit {
   private readonly livreService = inject(LivreService);
+  private readonly authService = inject(Auth);
+  private readonly adherentService = inject(AdherentService);
+
+  // IDs des livres réservés par l'adhérent connecté
+  private mesLivresReservesIds = computed(() => {
+    return new Set(this.adherentService.reservations().map(r => r.livre?.idLivre).filter(Boolean));
+  });
 
   // Signals pour les filtres
   searchTerm = signal('');
   selectedAuteur = signal<number | null>(null);
   selectedCategory = signal<number | null>(null);
   selectedLanguage = signal<string>(''); // Changé de Langue | null à string
+  dateMin = signal<string>('');
+  dateMax = signal<string>('');
   isFiltersOpen = signal(false); // État du panneau de filtres
 
   // Accès aux données du service
@@ -37,30 +47,40 @@ export class Catalogue {
     { code: 'English', label: 'Anglais' },
   ];
 
-  // Fonction pour vérifier la disponibilité
+  // Fonctions pour vérifier la disponibilité
   estDisponible = estDisponible;
+  estReserve = estReserve;
+  estEmprunte = estEmprunte;
+
+  /** Vérifie si le livre est réservé par l'adhérent connecté */
+  estMaReservation(livre: Livre): boolean {
+    return this.mesLivresReservesIds().has(livre.idLivre);
+  }
+
+  private readonly PAGE_SIZE = 20;
 
   constructor() {
-    // Charger les livres au démarrage (limite augmentée à 20 pour un meilleur rendu de grille)
-    this.livreService.chargerLivres(1, 20).subscribe();
+    this.livreService.chargerLivres(1, this.PAGE_SIZE).subscribe();
+  }
+
+  ngOnInit(): void {
+    // Charger les réservations de l'adhérent connecté pour les comparer
+    if (this.authService.estAdherent()) {
+      this.adherentService.obtenirReservations().subscribe();
+    }
   }
 
   /**
    * Lance la recherche avec les filtres actuels
    */
   lancerRecherche(): void {
-    console.log('🔍 Lancer recherche avec filtres:', {
-      searchTerm: this.searchTerm(),
-      selectedAuteur: this.selectedAuteur(),
-      selectedCategory: this.selectedCategory(),
-      selectedLanguage: this.selectedLanguage(),
-    });
-
     this.livreService.appliquerFiltres(
       this.searchTerm() || undefined,
       this.selectedAuteur() || undefined,
       this.selectedCategory() || undefined,
-      this.selectedLanguage() || undefined, // Passe la string directement ('' ou 'FR' ou 'EN')
+      this.selectedLanguage() || undefined,
+      this.dateMin() || undefined,
+      this.dateMax() || undefined,
     );
   }
 
@@ -72,7 +92,9 @@ export class Catalogue {
     this.selectedAuteur.set(null);
     this.selectedCategory.set(null);
     this.selectedLanguage.set('');
-    this.livreService.reinitialiserFiltres();
+    this.dateMin.set('');
+    this.dateMax.set('');
+    this.livreService.chargerLivres(1, this.PAGE_SIZE).subscribe();
   }
 
   /**
@@ -86,6 +108,6 @@ export class Catalogue {
    * Va à une page spécifique
    */
   allerPage(page: number): void {
-    this.livreService.chargerLivres(page, 20).subscribe();
+    this.livreService.chargerLivres(page, this.PAGE_SIZE).subscribe();
   }
 }

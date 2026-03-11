@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
-const API_URL = 'http://localhost:8008/api';
+const API_URL = 'https://localhost:8008/api';
 
 @Component({
   selector: 'app-inscription',
@@ -74,7 +74,7 @@ export class Inscription implements OnInit {
         this.isLoading = false;
         let message = 'Une erreur est survenue lors de l\'inscription.';
         if (erreur.status === 0) {
-          message = 'Impossible de joindre le serveur (http://localhost:8008)';
+          message = 'Impossible de joindre le serveur (https://localhost:8008)';
         } else if (erreur.error?.detail) {
           message = erreur.error.detail;
         } else if (erreur.error?.message) {

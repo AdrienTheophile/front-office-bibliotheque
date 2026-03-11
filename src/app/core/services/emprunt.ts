@@ -5,7 +5,7 @@ import { Auth } from './auth';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
-const API_URL = 'http://localhost:8008/api';
+const API_URL = 'https://localhost:8008/api';
 const DUREE_EMPRUNT_JOURS = 15;
 
 @Injectable({
