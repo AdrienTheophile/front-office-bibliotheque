@@ -61,11 +61,15 @@
                 </span>
               } @else if (estReserve(livre()!)) {
                 @if (estMaReservation()) {
-                  <span class="badge bg-info text-white border border-info rounded-pill px-3 py-2 fw-semibold">
+                  <span
+                    class="badge bg-info text-white border border-info rounded-pill px-3 py-2 fw-semibold"
+                  >
                     Ma réservation
                   </span>
                 } @else {
-                  <span class="badge bg-warning text-dark border border-warning rounded-pill px-3 py-2 fw-semibold">
+                  <span
+                    class="badge bg-warning text-dark border border-warning rounded-pill px-3 py-2 fw-semibold"
+                  >
                     Réservé
                   </span>
                 }
@@ -95,11 +99,11 @@
           </div>
 
           <!-- Synopsis / Description -->
-          @if (livre()?.description) {
+          @if (livre()?.synopsis) {
             <div class="synopsis-section">
               <h5 class="synopsis-title">Synopsis</h5>
               <p class="synopsis-text">
-                {{ livre()?.description }}
+                {{ livre()?.synopsis }}
               </p>
             </div>
           } @else {
@@ -113,14 +117,22 @@
           <!-- Reservation Actions -->
           <div class="mt-5 pt-3 border-top">
             @if (messageReservation()) {
-              <div class="alert mb-3" [class.alert-success]="messageReservation()!.type === 'success'" [class.alert-danger]="messageReservation()!.type === 'error'">
+              <div
+                class="alert mb-3"
+                [class.alert-success]="messageReservation()!.type === 'success'"
+                [class.alert-danger]="messageReservation()!.type === 'error'"
+              >
                 {{ messageReservation()!.texte }}
               </div>
             }
 
             @if (estConnecte() && estAdherent() && !estBiblioOuAdmin()) {
               <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
-                <button class="btn btn-reserve" [disabled]="!estDisponible(livre()!) || reservationEnCours()" (click)="reserverLivre()">
+                <button
+                  class="btn btn-reserve"
+                  [disabled]="!estDisponible(livre()!) || reservationEnCours()"
+                  (click)="reserverLivre()"
+                >
                   @if (reservationEnCours()) {
                     <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                     Réservation en cours...
@@ -137,9 +149,7 @@
                     Ce livre est déjà réservé par un autre adhérent.
                   </small>
                 } @else if (estMaReservation()) {
-                  <small class="text-info fw-semibold">
-                    Vous avez déjà réservé ce livre.
-                  </small>
+                  <small class="text-info fw-semibold"> Vous avez déjà réservé ce livre. </small>
                 }
               </div>
             } @else if (!estConnecte()) {

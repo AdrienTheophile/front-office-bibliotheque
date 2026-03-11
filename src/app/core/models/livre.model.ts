@@ -6,7 +6,7 @@ import { Reservation } from './reservation.model';
 /** Enums pour les énumérations */
 export enum Langue {
   Français = 'Français',
-  English = 'English'
+  English = 'English',
 }
 
 /**
@@ -21,6 +21,7 @@ export interface Livre {
   auteurs: Auteur[];
   categories: Categorie[];
   description?: string;
+  synopsis?: string;
   disponible?: boolean;
   reserve?: boolean;
   emprunts?: Emprunt[];
@@ -35,7 +36,9 @@ export function estDisponible(livre: Livre): boolean {
     return livre.disponible && !estReserve(livre);
   }
   if (!livre.emprunts || livre.emprunts.length === 0) return !estReserve(livre);
-  const pasEmprunte = livre.emprunts.every(e => e.dateRetourReel != null && e.dateRetourReel !== undefined);
+  const pasEmprunte = livre.emprunts.every(
+    (e) => e.dateRetourReel != null && e.dateRetourReel !== undefined,
+  );
   return pasEmprunte && !estReserve(livre);
 }
 
@@ -54,5 +57,5 @@ export function estEmprunte(livre: Livre): boolean {
     return !livre.disponible;
   }
   if (!livre.emprunts || livre.emprunts.length === 0) return false;
-  return livre.emprunts.some(e => e.dateRetourReel == null);
+  return livre.emprunts.some((e) => e.dateRetourReel == null);
 }
